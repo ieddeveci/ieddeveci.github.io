@@ -2,6 +2,8 @@
 layout: page
 title: Home
 ---
+![Portrait](/assets/img/profile.jpg){: .profile-photo }
+
 I earned my BSc in Computer Engineering from Koç University and my MSc in Cognitive Science at Middle East Technical University. Currently doing my PhD at METU Cognitive Science Department under the supervision of Dr. Duygu Ataman.
 
 ## PhD Focus
