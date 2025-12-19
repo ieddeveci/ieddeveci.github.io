@@ -5,10 +5,15 @@
   <title>{{ page.title }} | {{ site.title }}</title>
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
+
 <body>
-{% include header.html %}
-<main>
-  {{ content }}
-</main>
+  {% include header.html %}
+
+  <main>
+    {{ content }}
+  </main>
+
+  <script src="{{ '/assets/js/external-links.js' | relative_url }}"></script>
 </body>
 </html>
+
