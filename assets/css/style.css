@@ -86,3 +86,11 @@ hr {
 p {
   margin-bottom: 1.2rem;
 }
+
+.profile-photo {
+  display: block;
+  margin: 0 0 2rem 0;
+  max-width: 160px;
+  border: 1px solid #444;
+  filter: grayscale(100%) contrast(1.05);
+}
