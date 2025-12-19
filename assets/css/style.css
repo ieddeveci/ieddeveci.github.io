@@ -1,22 +1,88 @@
+/* ===== Global ===== */
+
 body {
-  font-family: Arial, sans-serif;
-  max-width: 800px;
+  background-color: #0e0f0f;
+  color: #cfcfcf;
+  font-family: "Courier New", Courier, monospace;
+  max-width: 760px;
   margin: auto;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
   line-height: 1.6;
+  font-size: 15px;
+}
+
+/* Subtle CRT softness */
+body {
+  text-shadow: 0 0 1px rgba(200, 200, 200, 0.15);
+}
+
+/* ===== Links ===== */
+
+a {
+  color: #cfcfcf;
+  text-decoration: none;
+  border-bottom: 1px dotted #666;
+}
+
+a:hover {
+  color: #ffffff;
+  border-bottom: 1px solid #999;
+}
+
+/* ===== Navigation ===== */
+
+nav {
+  margin-bottom: 2rem;
 }
 
 nav a {
-  margin-right: 1rem;
-  text-decoration: none;
-  color: black;
+  margin-right: 1.5rem;
 }
 
-.post-date {
-  color: #666;
-  font-size: 0.9em;
+/* ===== Headings ===== */
+
+h1, h2, h3 {
+  font-weight: normal;
+  letter-spacing: 0.04em;
+  color: #e0e0e0;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}
+
+/* ===== Horizontal rule ===== */
+
+hr {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 1.5rem 0;
+}
+
+/* ===== Blog list ===== */
+
+.blog-list {
+  list-style-type: none;
+  padding-left: 0;
 }
 
 .blog-list li {
-  margin-bottom: 1.2em;
+  margin-bottom: 1.5rem;
+}
+
+.post-date {
+  color: #8f8f8f;
+  font-size: 0.85em;
+}
+
+/* ===== Paragraph rhythm ===== */
+
+p {
+  margin-bottom: 1.2rem;
 }
