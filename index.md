@@ -19,10 +19,12 @@ My master’s thesis, conducted under the supervision of Assoc. Prof. Dr. Aziz Z
 This task constitutes a test of compositional generalization in neural models and engages a central debate in cognitive science: whether connectionist architectures can exhibit compositionality and productivity without explicit symbolic manipulation.
 
 The thesis is available here:  
-[Semantic Parsing with Transformer Models (METU Open Archive)](https://open.metu.edu.tr/handle/11511/109445)
+[Transformer models for translating natural language sentences into formal logical expressions
+ (METU Open Archive)](https://open.metu.edu.tr/handle/11511/109445)
 
 A pre-proceedings version of a forthcoming article based on this work can be found here:  
-[On the Possibility of Transformer-based Semantic Parsing](https://philpapers.org/rec/GRAPOT-20)
+[Transformer models for translating natural language sentences into formal logical expressions
+](https://philpapers.org/rec/GRAPOT-20)
 
 Beyond this work, my broader interests include reasoning, logic, and argumentation theory, as well as the philosophy of artificial intelligence, cognitive science, and mathematics.
 
