@@ -8,7 +8,7 @@ permalink: /news/
 ---
 
 **March 2026:** The `WillowNLtoFOL` and `WillowNLtoFOL_extended` datasets are now publicly available on Hugging Face.
-* **Description:** Originally introduced in the 2024 master's thesis and utilized in the ESSLLI 2025 article "Transformer Models for Translating Natural Language Sentences into Formal Logical Expressions," these datasets provide a structurally diverse and rigorously filtered benchmark for evaluating the compositional generalization capabilities of neural semantic parsing models on the NL-to-FOL translation task.
+* **Description:** Originally developed in the 2024 master's thesis and introduced in the ESSLLI 2025 article "Transformer Models for Translating Natural Language Sentences into Formal Logical Expressions," these datasets provide a structurally diverse and rigorously filtered benchmark for evaluating the compositional generalization capabilities of neural semantic parsing models on the NL-to-FOL translation task.
 * **Dataset:** [Hugging Face](https://huggingface.co/datasets/iedeveci/WillowNLtoFOL)
 
 ---
