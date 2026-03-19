@@ -5,24 +5,34 @@ permalink: /news/
 ---
 
 ### 2026
+---
 
 **March 2026:** The `WillowNLtoFOL` and `WillowNLtoFOL_extended` datasets are now publicly available on Hugging Face.
 * **Description:** Originally introduced in the 2024 master's thesis and utilized in the ESSLLI 2025 article "Transformer Models for Translating Natural Language Sentences into Formal Logical Expressions," these datasets provide a structurally diverse and rigorously filtered benchmark for evaluating the compositional generalization capabilities of neural semantic parsing models on the NL-to-FOL translation task.
 * **Dataset:** [Hugging Face](https://huggingface.co/datasets/iedeveci/WillowNLtoFOL)
 
+---
+
 **March 2026:** "Parametric Sound Field Interpolation for Scene-based Navigable Immersive Audio" accepted for publication in the *IEEE Transactions on Audio, Speech and Language Processing*.
 * **Description:** This article presents a parametric sound field interpolation method using multi-point sparse plane wave decomposition to enable perceptually veridical audio rendering for users navigating within immersive volumetric environments.
 * **Link:** [IEEE Xplore](https://ieeexplore.ieee.org/abstract/document/11425806)
 
+<br>
+
 ### 2025
+---
 
 **December 2025:** Book chapter titled "Yapay zekada sembolik ve sembolik olmayan ayrımı üzerine" (On the distinction between symbolic and non-symbolic in AI) published in *Yapay Zeka Felsefesi*, edited by Zekiye Göz (Doruk Yayınları).
 * **Description:** The chapter analyzes the operational differences between symbolic expert systems and neural networks within the context of cognitive science and artificial general intelligence.
 * **Link:** [Yapay Zeka Felsefesi](https://www.dorukyayinlari.com/kitap/yapay-zeka-felsefesi-cbf)
 
+---
+
 **November 2025:** "The Ouroboros of Benchmarking: Reasoning Evaluation in an Era of Saturation" accepted for poster presentation at the *NeurIPS 2025 Workshop on Evaluating the Evolving LLM Lifecycle: Benchmarks, Emergent Abilities, and Scaling*. 
 * **Description:** This study investigates performance trends across 52 benchmarks for OpenAI, Anthropic, and Google model families to examine how rapid evaluation saturation impacts the measurement of reasoning.
 * **Preprint:** [arXiv:2511.01365](https://arxiv.org/abs/2511.01365)
+
+---
 
 **October 2025:** "Global PIQA: Evaluating Physical Commonsense Reasoning Across 100+ Languages and Cultures" available on arXiv. 
 * **Description:** This work introduces a non-parallel benchmark designed to evaluate physical commonsense reasoning across more than 100 different languages and cultural contexts.
