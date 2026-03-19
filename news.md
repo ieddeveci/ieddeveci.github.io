@@ -4,7 +4,11 @@ title: News
 permalink: /news/
 ---
 
+### 2026
+
 **March 2026** - "Parametric Sound Field Interpolation for Scene-based Navigable Immersive Audio" accepted for publication at the **IEEE Transactions on Audio, Speech and Language Processing** [IEEE Xplore](https://ieeexplore.ieee.org/abstract/document/11425806) This article presents a parametric sound field interpolation method using multi-point sparse plane wave decomposition to enable perceptually veridical audio rendering for users navigating within immersive volumetric environments.
+
+### 2025
 
 **December 2025:** Book chapter titled "Yapay zekada sembolik ve sembolik olmayan ayrımı üzerine" (On the distinction between symbolic and non-symbolic in AI) published in *Yapay Zeka Felsefesi*, edited by Zekiye Göz (Doruk Yayınları). The chapter analyzes the operational differences between symbolic expert systems and neural networks within the context of cognitive science and artificial general intelligence.
 * **Book Link:** [Yapay Zeka Felsefesi](https://www.dorukyayinlari.com/kitap/yapay-zeka-felsefesi-cbf)
