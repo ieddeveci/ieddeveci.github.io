@@ -5,7 +5,7 @@ date: 2026-03-19
 description: "Our recent study explores whether surpassing benchmarks truly demonstrates reasoning ability or if we are simply tracking numbers."
 ---
 
-I want to share some insights from a recent paper I co-authored with my advisor, Duygu Ataman.
+I want to share some insights from a recent paper I co-authored with my advisor, Duygu Ataman. The article was accepted for a poster presentation at the NeurIPS 2025 Workshop on Evaluating the Evolving LLM Lifecycle: Benchmarks, Emergent Abilities, and Scaling. You can read the full preprint on arXiv here: [https://arxiv.org/abs/2511.01365](https://arxiv.org/abs/2511.01365).
 
 We are currently witnessing a massive surge in the capabilities of Large Language Models (LLMs) and specialized Large Reasoning Models (LRMs). However, as these models scale and training methods advance, the benchmarks we use to evaluate them are reaching saturation at an unprecedented rate. This rapid saturation forces the AI community into a continuous cycle of developing new, more challenging datasets to replace the old ones. We call this the "Ouroboros" of benchmarking.
 
