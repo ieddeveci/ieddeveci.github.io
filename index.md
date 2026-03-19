@@ -44,5 +44,5 @@ Beyond my core doctoral work, my broader interests encompass:
 ## Contact
 
 **Email:** ethem[dot]deveci[at]metu[dot]edu[dot]tr  
-**GitHub:** [github.com/ieddeveci](https://github.com/ieddeveci)
+**GitHub:** [github.com/ieddeveci](https://github.com/ieddeveci)  
 **Google Scholar** [Scholar](https://scholar.google.com/citations?user=dwJ8qoAAAAAJ&hl=tr)
