@@ -2,33 +2,48 @@
 layout: page
 title: Home
 ---
-![Portrait](/assets/img/profile.jpg){: .profile-photo }
+<div style="display: flex; align-items: flex-start; gap: 20px; margin-bottom: 30px;">
+  <img src="/assets/img/profile.jpg" alt="İbrahim Ethem Deveci" style="width: 180px; border-radius: 4px; flex-shrink: 0;">
+  <div>
+    <h1 style="margin-top: 0;">İbrahim Ethem Deveci</h1>
+    <p><strong>PhD Student in Cognitive Science</strong>: Middle East Technical University (METU)</p>
+    <p>Supervised by <strong>Dr. Duygu Ataman</strong></p>
+    <p>I earned my BSc in Computer Engineering from Koç University and my MSc in Cognitive Science from Middle East Technical University (METU). I am currently a PhD student in the Cognitive Science Department at METU, working under the supervision of Dr. Duygu Ataman.</p>
+  </div>
+</div>
 
-I earned my BSc in Computer Engineering from Koç University and my MSc in Cognitive Science from Middle East Technical University (METU). I am currently a PhD student in the Cognitive Science Department at METU, working under the supervision of Dr. Duygu Ataman.
+---
 
-## PhD Focus
+## PhD Research Focus
 
-My doctoral research centers on artificial intelligence, deep learning, and natural language processing, with a particular emphasis on reasoning and compositional generalization. Drawing on formal tools from cognitive science and mathematics, I investigate how reasoning and inference can be modeled beyond benchmark performance, toward explanatory adequacy.
+My doctoral research centers on artificial intelligence, deep learning, and natural language processing, with a primary focus on **reasoning and generalization**. I investigate the integration of **interactionist theories of reasoning** from cognitive science with large language models through reinforcement learning.
 
-Concretely, my work develops theory-driven formalizations of reasoning that inform the design of reinforcement learning methods providing feedback signals explicitly aligned with inferential structure. In parallel, I design principled evaluation methodologies that characterize model behavior and failure modes in a fine-grained, layered manner, rather than through aggregate benchmark scores. By integrating formal theory, architectural innovation, and evaluation design, my research aims to advance AI systems toward genuine inferential competence.
+### Core Objectives
+
+* **Dialogue and Argumentation:** Exploring whether training based on structured debate can enhance the reasoning capabilities of large language models.
+* **Multiagent Settings:** Adopting environments for multiagent debate to facilitate complex, structured interactions between models.
+* **Fine-Grained Evaluation:** Designing **dense reward functions** and models intended to assess performance in individual debate turns.
+* **Inferential Alignment:** Developing feedback signals explicitly aligned with inferential structures to achieve greater explanatory adequacy.
+
+---
 
 ## Master’s Thesis
 
-My master’s thesis, conducted under the supervision of Assoc. Prof. Dr. Aziz Zambak and Dr. Ceyhan Temürcü, examined the ability of transformer-based language models to perform semantic parsing from natural language sentences into first-order logic expressions. To disentangle lexical, syntactic, and semantic sources of error, I developed task-specific evaluation metrics enabling a precise analysis of model performance.
+Under the supervision of Assoc. Prof. Dr. Aziz Zambak and Dr. Ceyhan Temürcü, I examined the ability of transformer-based models to perform **semantic parsing** from natural language into first-order logic expressions. This work serves as a test for **compositional generalization** in neural models, addressing whether connectionist architectures can exhibit productivity without explicit symbol manipulation.
 
-This task constitutes a test of compositional generalization in neural models and engages a central debate in cognitive science: whether connectionist architectures can exhibit compositionality and productivity without explicit symbolic manipulation.
+* **Task-Specific Metrics:** Developed to disentangle lexical, syntactic, and semantic sources of error for precise analysis.
+* **Full Thesis:** [METU Open Archive](https://open.metu.edu.tr/handle/11511/109445)
+* **Related Publication:** [Pre-proceedings version on PhilPapers](https://philpapers.org/rec/GRAPOT-20)
 
-The thesis is available here:  
-[Transformer models for translating natural language sentences into formal logical expressions
- (METU Open Archive)](https://open.metu.edu.tr/handle/11511/109445)
+## Research Interests
 
-A pre-proceedings version of a forthcoming article based on this work can be found here:  
-[Transformer models for translating natural language sentences into formal logical expressions
-](https://philpapers.org/rec/GRAPOT-20)
+Beyond my core doctoral work, my broader interests encompass:
+* Reasoning, logic, and argumentation theory
+* Philosophy of artificial intelligence, cognitive science, and mathematics
 
-Beyond this work, my broader interests include reasoning, logic, and argumentation theory, as well as the philosophy of artificial intelligence, cognitive science, and mathematics.
+---
 
 ## Contact
 
-Email: ethem[dot]deveci[at]metu[dot]edu[dot]tr  
-GitHub: [github.com/ieddeveci](https://github.com/ieddeveci)
+**Email:** ethem[dot]deveci[at]metu[dot]edu[dot]tr  
+**GitHub:** [github.com/ieddeveci](https://github.com/ieddeveci)
