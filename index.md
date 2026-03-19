@@ -6,7 +6,7 @@ title: Home
   <img src="/assets/img/profile.jpg" alt="İbrahim Ethem Deveci" style="width: 180px; border-radius: 4px; flex-shrink: 0; filter: grayscale(100%);">
   <div>
     <h1 style="margin-top: 0;">İbrahim Ethem Deveci (ied)</h1>
-    <p>I earned my BSc in Computer Engineering from Koç University and my MSc in Cognitive Science from Middle East Technical University (METU). I am currently a PhD student in the Cognitive Science Department at METU, working under the supervision of [Dr. Duygu Ataman.](https://www.duyguataman.com/)</p>
+    <p>I earned my BSc in Computer Engineering from Koç University and my MSc in Cognitive Science from Middle East Technical University (METU). I am currently a PhD student in the Cognitive Science Department at METU, working under the supervision of Dr. Duygu Ataman.</p>
   </div>
 </div>
 
