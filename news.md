@@ -6,6 +6,10 @@ permalink: /news/
 
 ### 2026
 
+**March 2026:** The `WillowNLtoFOL` and `WillowNLtoFOL_extended` datasets are now publicly available on Hugging Face.
+* **Description:** Originally introduced in the 2024 master's thesis and utilized in the ESSLLI 2025 article "Transformer Models for Translating Natural Language Sentences into Formal Logical Expressions," these datasets provide a structurally diverse and rigorously filtered benchmark for evaluating the compositional generalization capabilities of neural semantic parsing models on the NL-to-FOL translation task.
+* **Dataset:** [Hugging Face](https://huggingface.co/datasets/iedeveci/WillowNLtoFOL)
+
 **March 2026:** "Parametric Sound Field Interpolation for Scene-based Navigable Immersive Audio" accepted for publication in the *IEEE Transactions on Audio, Speech and Language Processing*.
 * **Description:** This article presents a parametric sound field interpolation method using multi-point sparse plane wave decomposition to enable perceptually veridical audio rendering for users navigating within immersive volumetric environments.
 * **Link:** [IEEE Xplore](https://ieeexplore.ieee.org/abstract/document/11425806)
