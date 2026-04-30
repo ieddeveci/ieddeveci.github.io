@@ -5,7 +5,7 @@ title: Home
 <div style="display: flex; align-items: flex-start; gap: 20px; margin-bottom: 30px;">
   <img src="/assets/img/profile.jpg" alt="İbrahim Ethem Deveci" style="width: 180px; border-radius: 4px; flex-shrink: 0; filter: grayscale(100%);">
   <div>
-    <h1 style="margin-top: 0;">Hello there ✋, I'm İbrahim Ethem</h1>
+    <h1 style="margin-top: 0;">Hello there, I'm İbrahim Ethem</h1>
     <p>I'm a PhD student in Cognitive Science at METU, Ankara, working under the supervision of 
     <a href="https://scholar.google.com/citations?user=nFEUTOIAAAAJ&hl=tr">Dr. Duygu Ataman</a>.</p>
     <p>Before this, I did my BSc in Computer Engineering at Koç University and my MSc in Cognitive 
