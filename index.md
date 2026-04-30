@@ -7,7 +7,7 @@ title: Home
   <div>
     <h1 style="margin-top: 0;">Hello there ✋, I'm İbrahim Ethem</h1>
     <p>I'm a PhD student in Cognitive Science at METU, Ankara, working under the supervision of 
-    <a href="https://scholar.google.com/citations?user=...">Dr. Duygu Ataman</a>.</p>
+    <a href="https://scholar.google.com/citations?user=nFEUTOIAAAAJ&hl=tr">Dr. Duygu Ataman</a>.</p>
     <p>Before this, I did my BSc in Computer Engineering at Koç University and my MSc in Cognitive 
     Science here at METU, where I worked on semantic parsing and compositional generalization in transformer models.</p>
   </div>
