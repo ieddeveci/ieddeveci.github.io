@@ -1,13 +1,9 @@
 ---
 layout: page
-title: CV
+title: Curriculum Vitae
 ---
 
-## Curriculum Vitae
-
-You can download my full CV as a PDF:
-
-[📄 Download CV (PDF)](/assets/CV_IED.pdf)
+You can download my full CV as a PDF: [📄 Download CV (PDF)](/assets/CV_IED.pdf)
 
 ---
 
