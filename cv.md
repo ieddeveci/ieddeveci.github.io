@@ -3,7 +3,7 @@ layout: page
 title: Curriculum Vitae
 ---
 
-You can download my full CV as a PDF: [📄 Download CV (PDF)](/assets/CV_IED.pdf)
+You can download my full CV as a [PDF](/assets/CV_IED.pdf)
 
 ---
 
