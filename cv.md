@@ -35,7 +35,7 @@ Track Program Certificate in Brain and Cognitive Sciences
 
 ## Publications
 
-* * O. Olgun, I. E. Deveci and H. Hacıhabiboğlu, "Parametric Sound Field Interpolation for Scene-Based Navigable Immersive Audio," in *IEEE Transactions on Audio, Speech and Language Processing*, vol. 34, pp. 1608-1620, 2026, doi: [10.1109/TASLPRO.2026.3671646](https://doi.org/10.1109/TASLPRO.2026.3671646).
+* O. Olgun, I. E. Deveci and H. Hacıhabiboğlu, "Parametric Sound Field Interpolation for Scene-Based Navigable Immersive Audio," in *IEEE Transactions on Audio, Speech and Language Processing*, vol. 34, pp. 1608-1620, 2026, doi: [10.1109/TASLPRO.2026.3671646](https://doi.org/10.1109/TASLPRO.2026.3671646).
   
 * Deveci, İ. E. (2025). Yapay zekada sembolik ve sembolik olmayan ayrımı üzerine. In Z. Göz (Ed.), *Yapay zekâ felsefesi* (pp. 173-236). Doruk Yayınları.
   
