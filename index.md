@@ -20,7 +20,7 @@ title: Home
 I work on reasoning in large language models, specifically on whether and how they can be 
 made to reason better, not just perform better on benchmarks. My approach draws on 
 interactionist theories of reasoning from cognitive science and connects them to 
-reinforcement learning and argumentation.
+reinforcement learning.
 The broader question underneath all of it is what it would even mean for a computational model to reason.
 
 ---
