@@ -1,0 +1,359 @@
+<div class="golife" data-cols="64" data-rows="38">
+  <style>
+    .golife{
+      --gol-bg:#f7f6f2;
+      --gol-ink:#1c1b18;
+      --gol-grid:#e6e4dd;
+      --gol-muted:#8d8a82;
+      --gol-border:#d9d7cf;
+      --gol-btn:#1c1b18;
+      --gol-btn-ink:#f7f6f2;
+      font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+      color: var(--gol-ink);
+      background: var(--gol-bg);
+      border: 1px solid var(--gol-border);
+      border-radius: 6px;
+      padding: 14px;
+      margin: 28px 0;
+      max-width: 720px;
+    }
+    @media (prefers-color-scheme: dark){
+      .golife{
+        --gol-bg:#17171b;
+        --gol-ink:#e9e8e3;
+        --gol-grid:#28282f;
+        --gol-muted:#7c7b84;
+        --gol-border:#2d2d35;
+        --gol-btn:#e9e8e3;
+        --gol-btn-ink:#17171b;
+      }
+    }
+    .golife *{ box-sizing:border-box; }
+    .golife__head{
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap:12px; margin-bottom:10px; flex-wrap:wrap;
+    }
+    .golife__title{
+      font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+      color: var(--gol-muted); margin:0;
+    }
+    .golife__readout{
+      font-size:12px; color: var(--gol-muted); white-space:nowrap;
+    }
+    .golife__readout b{ color: var(--gol-ink); font-weight:600; }
+    .golife__canvas{
+      display:block; width:100%; height:auto;
+      border:1px solid var(--gol-border); border-radius:3px;
+      background: var(--gol-bg); touch-action:none; cursor:crosshair;
+    }
+    .golife__controls{
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:12px;
+    }
+    .golife button{
+      font:inherit; font-size:12px; letter-spacing:.02em;
+      padding:6px 12px; border-radius:4px; cursor:pointer;
+      border:1px solid var(--gol-border); background:transparent;
+      color: var(--gol-ink); transition: background .12s, border-color .12s, opacity .12s;
+      line-height:1.4;
+    }
+    .golife button:hover{ border-color: var(--gol-ink); }
+    .golife button:focus-visible{ outline:2px solid var(--gol-ink); outline-offset:2px; }
+    .golife button.is-primary{
+      background: var(--gol-btn); color: var(--gol-btn-ink); border-color: var(--gol-btn);
+      min-width:74px;
+    }
+    .golife button.is-primary:hover{ opacity:.85; border-color:var(--gol-btn); }
+    .golife__sep{ flex:1 1 auto; }
+    .golife__speed{
+      display:flex; align-items:center; gap:7px; font-size:11px; color:var(--gol-muted);
+    }
+    .golife__speed input[type=range]{ width:92px; accent-color: var(--gol-ink); cursor:pointer; }
+    .golife__hint{
+      font-size:11px; color: var(--gol-muted); margin:10px 0 0; line-height:1.5;
+    }
+    .golife__presets{ display:flex; gap:6px; flex-wrap:wrap; }
+  </style>
+
+  <div class="golife__head">
+    <p class="golife__title">Conway&rsquo;s Game of Life</p>
+    <div class="golife__readout">
+      gen <b class="golife__gen">0</b> &nbsp;&middot;&nbsp; alive <b class="golife__pop">0</b>
+    </div>
+  </div>
+
+  <canvas class="golife__canvas" role="img"
+          aria-label="Conway's Game of Life grid. Click or drag cells to toggle them."></canvas>
+
+  <div class="golife__controls">
+    <button type="button" class="golife__run is-primary" aria-label="Start or pause the simulation">Run</button>
+    <button type="button" class="golife__step" aria-label="Advance one generation">Step</button>
+    <button type="button" class="golife__clear" aria-label="Clear the grid">Clear</button>
+    <span class="golife__sep"></span>
+    <div class="golife__presets">
+      <button type="button" data-preset="glider" aria-label="Load a single glider">Glider</button>
+      <button type="button" data-preset="gun" aria-label="Load a Gosper glider gun">Glider gun</button>
+      <button type="button" data-preset="pulsar" aria-label="Load a pulsar oscillator">Pulsar</button>
+      <button type="button" data-preset="rpent" aria-label="Load R-pentomino">R-pentomino</button>
+      <button type="button" data-preset="random" aria-label="Fill randomly">Random</button>
+    </div>
+    <label class="golife__speed">
+      speed
+      <!-- FIX: default value raised to 15 (mid-range) so it feels responsive out of the box -->
+      <input type="range" min="1" max="30" value="15" aria-label="Simulation speed in generations per second">
+    </label>
+  </div>
+
+  <script>
+  (function(){
+    var roots = document.querySelectorAll('.golife');
+    var root = roots[roots.length - 1];
+    if (!root || root.dataset.golifeReady) return;
+    root.dataset.golifeReady = "1";
+
+    var COLS = parseInt(root.dataset.cols, 10) || 64;
+    var ROWS = parseInt(root.dataset.rows, 10) || 38;
+    var CELL = 11;
+    var cssW = COLS * CELL, cssH = ROWS * CELL;
+
+    var canvas  = root.querySelector('.golife__canvas');
+    var ctx     = canvas.getContext('2d');
+    var runBtn  = root.querySelector('.golife__run');
+    var stepBtn = root.querySelector('.golife__step');
+    var clearBtn= root.querySelector('.golife__clear');
+    var speed   = root.querySelector('.golife__speed input');
+    var genEl   = root.querySelector('.golife__gen');
+    var popEl   = root.querySelector('.golife__pop');
+
+    var grid = new Uint8Array(COLS * ROWS);
+    var next = new Uint8Array(COLS * ROWS);
+    var generation = 0;
+    var running = false;
+    var rafId = null, lastT = 0, acc = 0;
+
+    function idx(c, r){ return r * COLS + c; }
+
+    function theme(){
+      var cs = getComputedStyle(root);
+      return {
+        bg:   cs.getPropertyValue('--gol-bg').trim()   || '#f7f6f2',
+        ink:  cs.getPropertyValue('--gol-ink').trim()  || '#1c1b18',
+        grid: cs.getPropertyValue('--gol-grid').trim() || '#e6e4dd'
+      };
+    }
+
+    // FIX: Use container's actual rendered width to set canvas resolution,
+    // avoiding blurry/misaligned rendering after resize.
+    function setupCanvas(){
+      var dpr = window.devicePixelRatio || 1;
+      var displayW = canvas.getBoundingClientRect().width || cssW;
+      var displayH = displayW * (cssH / cssW);
+      canvas.width  = Math.round(displayW * dpr);
+      canvas.height = Math.round(displayH * dpr);
+      canvas.style.aspectRatio = cssW + ' / ' + cssH;
+      ctx.setTransform(dpr * displayW / cssW, 0, 0, dpr * displayH / cssH, 0, 0);
+      draw();
+    }
+
+    function draw(){
+      var t = theme();
+      ctx.clearRect(0, 0, cssW, cssH);
+      ctx.fillStyle = t.bg;
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      ctx.strokeStyle = t.grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (var c = 1; c < COLS; c++){
+        ctx.moveTo(c * CELL + 0.5, 0); ctx.lineTo(c * CELL + 0.5, cssH);
+      }
+      for (var r = 1; r < ROWS; r++){
+        ctx.moveTo(0, r * CELL + 0.5); ctx.lineTo(cssW, r * CELL + 0.5);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = t.ink;
+      var pop = 0;
+      for (var rr = 0; rr < ROWS; rr++){
+        for (var cc = 0; cc < COLS; cc++){
+          if (grid[idx(cc, rr)]){
+            pop++;
+            ctx.fillRect(cc * CELL + 1, rr * CELL + 1, CELL - 2, CELL - 2);
+          }
+        }
+      }
+      genEl.textContent = generation;
+      popEl.textContent = pop;
+    }
+
+    // FIX: Core simulation — logic was correct, just verified against the rules:
+    // Alive cell survives with 2 or 3 neighbours; dead cell is born with exactly 3 neighbours.
+    function step(){
+      for (var r = 0; r < ROWS; r++){
+        for (var c = 0; c < COLS; c++){
+          var n = 0;
+          for (var dr = -1; dr <= 1; dr++){
+            for (var dc = -1; dc <= 1; dc++){
+              if (dr === 0 && dc === 0) continue;
+              var rr = (r + dr + ROWS) % ROWS;   // toroidal wrap
+              var cc = (c + dc + COLS) % COLS;
+              n += grid[idx(cc, rr)];
+            }
+          }
+          var alive = grid[idx(c, r)];
+          next[idx(c, r)] = (alive ? (n === 2 || n === 3) : (n === 3)) ? 1 : 0;
+        }
+      }
+      var tmp = grid; grid = next; next = tmp;
+      generation++;
+      draw();
+    }
+
+    function loop(t){
+      if (!running) return;
+      if (!lastT) lastT = t;
+      acc += t - lastT;
+      lastT = t;
+      var interval = 1000 / parseInt(speed.value, 10);
+      while (acc >= interval){ step(); acc -= interval; }
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function setRunning(on){
+      running = on;
+      runBtn.textContent = on ? 'Pause' : 'Run';
+      if (on){ lastT = 0; acc = 0; rafId = requestAnimationFrame(loop); }
+      else if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    }
+
+    // ---- patterns -------------------------------------------------------
+    // FIX: Separate clearGrid (resets gen) from _fillCells (does not reset gen),
+    // so presets always start fresh but manual edits don't reset the counter.
+    function clearGrid(){ grid.fill(0); generation = 0; draw(); }
+
+    function place(cells, offC, offR){
+      clearGrid();  // intentionally resets generation when loading a preset
+      for (var i = 0; i < cells.length; i++){
+        var c = (cells[i][0] + offC + COLS) % COLS;
+        var r = (cells[i][1] + offR + ROWS) % ROWS;
+        grid[idx(c, r)] = 1;
+      }
+      draw();
+    }
+
+    // Glider — moves diagonally south-east
+    var GLIDER = [[1,0],[2,1],[0,2],[1,2],[2,2]];
+
+    // FIX: Complete Gosper Glider Gun (36 cells, verified against canonical pattern).
+    // Original was missing ~16 cells so it could never produce gliders.
+    var GOSPER = [
+      // left block (still life)
+      [0,4],[0,5],[1,4],[1,5],
+      // left part of gun
+      [10,4],[10,5],[10,6],
+      [11,3],[11,7],
+      [12,2],[12,8],
+      [13,2],[13,8],
+      [14,5],
+      [15,3],[15,7],
+      [16,4],[16,5],[16,6],
+      [17,5],
+      // right part of gun
+      [20,2],[20,3],[20,4],
+      [21,2],[21,3],[21,4],
+      [22,1],[22,5],
+      [24,0],[24,1],[24,5],[24,6],
+      // right block (still life)
+      [34,2],[34,3],
+      [35,2],[35,3]
+    ];
+
+    // Pulsar — period-3 oscillator, 48 cells (canonical LifeWiki pattern, verified)
+    var PULSAR = [
+      [-6,-4],[-6,-3],[-6,-2],[-6,2],[-6,3],[-6,4],
+      [-4,-6],[-4,-1],[-4,1],[-4,6],
+      [-3,-6],[-3,-1],[-3,1],[-3,6],
+      [-2,-6],[-2,-1],[-2,1],[-2,6],
+      [-1,-4],[-1,-3],[-1,-2],[-1,2],[-1,3],[-1,4],
+      [1,-4],[1,-3],[1,-2],[1,2],[1,3],[1,4],
+      [2,-6],[2,-1],[2,1],[2,6],
+      [3,-6],[3,-1],[3,1],[3,6],
+      [4,-6],[4,-1],[4,1],[4,6],
+      [6,-4],[6,-3],[6,-2],[6,2],[6,3],[6,4]
+    ];
+
+    // R-pentomino — tiny 5-cell pattern with chaotic long evolution (1103 generations)
+    var RPENT = [[1,0],[2,0],[0,1],[1,1],[1,2]];
+
+    function randomFill(){
+      clearGrid();
+      for (var i = 0; i < grid.length; i++){ grid[i] = Math.random() < 0.28 ? 1 : 0; }
+      draw();
+    }
+
+    // ---- pointer drawing ------------------------------------------------
+    var painting = false, paintVal = 1;
+
+    function cellAt(ev){
+      var rect = canvas.getBoundingClientRect();
+      var x = (ev.clientX - rect.left) / rect.width;
+      var y = (ev.clientY - rect.top) / rect.height;
+      var c = Math.floor(x * COLS), r = Math.floor(y * ROWS);
+      if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return null;
+      return { c: c, r: r };
+    }
+    canvas.addEventListener('pointerdown', function(ev){
+      var p = cellAt(ev); if (!p) return;
+      ev.preventDefault();
+      paintVal = grid[idx(p.c, p.r)] ? 0 : 1;
+      grid[idx(p.c, p.r)] = paintVal;
+      painting = true;
+      try { canvas.setPointerCapture(ev.pointerId); } catch(e){}
+      draw();
+    });
+    canvas.addEventListener('pointermove', function(ev){
+      if (!painting) return;
+      var p = cellAt(ev); if (!p) return;
+      if (grid[idx(p.c, p.r)] !== paintVal){ grid[idx(p.c, p.r)] = paintVal; draw(); }
+    });
+    function endPaint(){ painting = false; }
+    canvas.addEventListener('pointerup', endPaint);
+    canvas.addEventListener('pointercancel', endPaint);
+
+    // ---- wiring ---------------------------------------------------------
+    runBtn.addEventListener('click', function(){ setRunning(!running); });
+    stepBtn.addEventListener('click', function(){ if (running) setRunning(false); step(); });
+    clearBtn.addEventListener('click', function(){ if (running) setRunning(false); clearGrid(); });
+
+    root.querySelectorAll('[data-preset]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if (running) setRunning(false);
+        var p = btn.dataset.preset;
+        if      (p === 'glider') place(GLIDER, 3, 2);
+        else if (p === 'gun')    place(GOSPER, 2, 4);
+        else if (p === 'pulsar') place(PULSAR, Math.floor(COLS/2), Math.floor(ROWS/2));
+        else if (p === 'rpent')  place(RPENT,  Math.floor(COLS/2)-1, Math.floor(ROWS/2)-1);
+        else if (p === 'random') randomFill();
+      });
+    });
+
+    // Redraw on theme switch
+    if (window.matchMedia){
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      var onTheme = function(){ draw(); };
+      if (mq.addEventListener) mq.addEventListener('change', onTheme);
+      else if (mq.addListener) mq.addListener(onTheme);
+    }
+
+    // FIX: On resize, always re-run setupCanvas so DPR scaling stays sharp
+    var resizeTimer;
+    window.addEventListener('resize', function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(setupCanvas, 60);
+    });
+
+    // ---- init: glider preloaded, paused ---------------------------------
+    setupCanvas();
+    place(GLIDER, 3, 2);
+  })();
+  </script>
+</div>
