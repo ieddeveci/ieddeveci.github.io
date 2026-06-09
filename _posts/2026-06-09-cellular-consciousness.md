@@ -268,27 +268,27 @@ His parting line is the one I want to leave you with. There is a mystery of cons
 
 ### Further reading
 
-- Daniel C. Dennett, Real Patterns (https://ruccs.rutgers.edu/images/personal-zenon-pylyshyn/class-info/FP2012/FP2012_readings/Dennett_RealPatterns.pdf)
-- Francesco Berto and Jacopo Tagliabue, Cellular Automata (https://plato.stanford.edu/archives/Spr2016/entries/cellular-automata/index.html)
-- Eric W. Weisstein, Elementary Cellular Automaton (https://mathworld.wolfram.com/ElementaryCellularAutomaton.html)
-- Matthew Cook, Universality in Elementary Cellular Automata (https://wpmedia.wolfram.com/sites/13/2018/02/15-1-1.pdf)
-- John von Neumann, Theory of Self-Reproducing Automata
-- Stephen Wolfram, A New Kind of Science (https://www.wolframscience.com/nks/)
-- Melanie Mitchell, James P. Crutchfield, and Peter T. Hraber, Dynamics, Computation, and the "Edge of Chaos": A Re-Examination (https://melaniemitchell.me/PapersContent/dyn-comp-edge.pdf)
-- Andy Clark, Mindware: An Introduction to the Philosophy of Cognitive Science
-- Francisco J. Varela, Evan Thompson, and Eleanor Rosch, The Embodied Mind
-- Humberto R. Maturana and Francisco J. Varela, Autopoiesis and Cognition: The Realization of the Living
-- Evan Thompson, Mind in Life: Biology, Phenomenology, and the Sciences of Mind
-- Anil K. Seth, Being You: A New Science of Consciousness
-- Anil K. Seth, Conscious Artificial Intelligence and Biological Naturalism (https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/conscious-artificial-intelligence-and-biological-naturalism/C9912A5BE9D806012E3C8B3AF612E39A)
-- Karl J. Friston, The Free-Energy Principle: A Unified Brain Theory? (https://www.nature.com/articles/nrn2787)
-- Karl J. Friston, Jean Daunizeau, and Stefan J. Kiebel, Reinforcement Learning or Active Inference? (https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421)
-- Noor Sajid, Philip J. Ball, Thomas Parr, and Karl J. Friston, Active inference: demystified and compared (https://arxiv.org/abs/1909.10863)
-- Christopher G. Langton, Self-Reproduction in Cellular Automata (https://fab.cba.mit.edu/classes/865.18/replication/Langton.pdf)
-- Bert Wang-Chak Chan, Lenia: Biology of Artificial Life (https://www.complex-systems.com/abstracts/v28_i03_a01/)
-- Ricky T. Q. Chen et al., Neural Ordinary Differential Equations (https://proceedings.neurips.cc/paper_files/paper/2018/file/69386f6bb1dfed68692a24c8686939b9-Paper.pdf)
-- Alexander Mordvintsev, Ettore Randazzo, Eyvind Niklasson, and Michael Levin, Growing Neural Cellular Automata (https://distill.pub/2020/growing-ca/)
-- Blaise Agüera y Arcas et al., Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction (https://arxiv.org/abs/2406.19108)
-- Blaise Agüera y Arcas, What Is Life? Evolution as Computation
-- David J. Chalmers, Facing Up to the Problem of Consciousness (https://consc.net/papers/facing.pdf)
-- Bas C. van Fraassen, Transcendence of the Ego (The Non-Existent Knight) (https://www.princeton.edu/~fraassen/articles/pdfs/TranscendenceRatioOffprint.pdf)
+- **Daniel C. Dennett, Real Patterns** (https://ruccs.rutgers.edu/images/personal-zenon-pylyshyn/class-info/FP2012/FP2012_readings/Dennett_RealPatterns.pdf)
+- **Francesco Berto and Jacopo Tagliabue, Cellular Automata** (https://plato.stanford.edu/archives/Spr2016/entries/cellular-automata/index.html)
+- **Eric W. Weisstein, Elementary Cellular Automaton** (https://mathworld.wolfram.com/ElementaryCellularAutomaton.html)
+- **Matthew Cook, Universality in Elementary Cellular Automata** (https://wpmedia.wolfram.com/sites/13/2018/02/15-1-1.pdf)
+- **John von Neumann, Theory of Self-Reproducing Automata**
+- **Stephen Wolfram, A New Kind of Science** (https://www.wolframscience.com/nks/)
+- **Melanie Mitchell, James P. Crutchfield, and Peter T. Hraber, Dynamics, Computation, and the "Edge of Chaos": A Re-Examination** (https://melaniemitchell.me/PapersContent/dyn-comp-edge.pdf)
+- **Andy Clark, Mindware: An Introduction to the Philosophy of Cognitive Science**
+- **Francisco J. Varela, Evan Thompson, and Eleanor Rosch, The Embodied Mind**
+- **Humberto R. Maturana and Francisco J. Varela, Autopoiesis and Cognition: The Realization of the Living**
+- **Evan Thompson, Mind in Life: Biology, Phenomenology, and the Sciences of Mind**
+- **Anil K. Seth, Being You: A New Science of Consciousness**
+- **Anil K. Seth, Conscious Artificial Intelligence and Biological Naturalism** (https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/conscious-artificial-intelligence-and-biological-naturalism/C9912A5BE9D806012E3C8B3AF612E39A)
+- **Karl J. Friston, The Free-Energy Principle: A Unified Brain Theory?** (https://www.nature.com/articles/nrn2787)
+- **Karl J. Friston, Jean Daunizeau, and Stefan J. Kiebel, Reinforcement Learning or Active Inference?** (https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421)
+- **Noor Sajid, Philip J. Ball, Thomas Parr, and Karl J. Friston, Active inference: demystified and compared** (https://arxiv.org/abs/1909.10863)
+- **Christopher G. Langton, Self-Reproduction in Cellular Automata** (https://fab.cba.mit.edu/classes/865.18/replication/Langton.pdf)
+- **Bert Wang-Chak Chan, Lenia: Biology of Artificial Life** (https://www.complex-systems.com/abstracts/v28_i03_a01/)
+- **Ricky T. Q. Chen et al., Neural Ordinary Differential Equations** (https://proceedings.neurips.cc/paper_files/paper/2018/file/69386f6bb1dfed68692a24c8686939b9-Paper.pdf)
+- **Alexander Mordvintsev, Ettore Randazzo, Eyvind Niklasson, and Michael Levin, Growing Neural Cellular Automata** (https://distill.pub/2020/growing-ca/)
+- **Blaise Agüera y Arcas et al., Computational Life: How Well-formed, Self-replicating Programs Emerge from Simple Interaction** (https://arxiv.org/abs/2406.19108)
+- **Blaise Agüera y Arcas, What Is Life? Evolution as Computation**
+- **David J. Chalmers, Facing Up to the Problem of Consciousness** (https://consc.net/papers/facing.pdf)
+- **Bas C. van Fraassen, Transcendence of the Ego (The Non-Existent Knight)** (https://www.princeton.edu/~fraassen/articles/pdfs/TranscendenceRatioOffprint.pdf)
