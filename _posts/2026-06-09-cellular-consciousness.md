@@ -281,7 +281,9 @@ His parting line is the one I want to leave you with. There is a mystery of cons
 - Evan Thompson, Mind in Life: Biology, Phenomenology, and the Sciences of Mind
 - Anil K. Seth, Being You: A New Science of Consciousness
 - Anil K. Seth, Conscious Artificial Intelligence and Biological Naturalism (https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/conscious-artificial-intelligence-and-biological-naturalism/C9912A5BE9D806012E3C8B3AF612E39A)
-- Karl Friston, The Free-Energy Principle: A Unified Brain Theory? (https://www.nature.com/articles/nrn2787)
+- Karl J. Friston, The Free-Energy Principle: A Unified Brain Theory? (https://www.nature.com/articles/nrn2787)
+- Karl J. Friston, Jean Daunizeau, and Stefan J. Kiebel, Reinforcement Learning or Active Inference? (https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0006421)
+- Noor Sajid, Philip J. Ball, Thomas Parr, and Karl J. Friston, Active inference: demystified and compared (https://arxiv.org/abs/1909.10863)
 - Christopher G. Langton, Self-Reproduction in Cellular Automata (https://fab.cba.mit.edu/classes/865.18/replication/Langton.pdf)
 - Bert Wang-Chak Chan, Lenia: Biology of Artificial Life (https://www.complex-systems.com/abstracts/v28_i03_a01/)
 - Ricky T. Q. Chen et al., Neural Ordinary Differential Equations (https://proceedings.neurips.cc/paper_files/paper/2018/file/69386f6bb1dfed68692a24c8686939b9-Paper.pdf)
