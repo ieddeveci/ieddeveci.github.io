@@ -11,7 +11,7 @@ permalink: /news/
 **June 2026:** "A Diagnostic Framework for Compositional Generalization via NL-to-FOL Translation" published in the *Journal of Logic, Language and Information*.
 * **Description:** This article presents a systematic diagnostic framework for evaluating compositional generalization in neural semantic parsing models on the NL-to-FOL translation task, introducing the `WillowNLtoFOL` dataset and comprehensive metrics for assessing both structural correctness and semantic equivalence of model outputs.
 * **Journal:** [Journal of Logic, Language and Information](https://doi.org/10.1007/s10849-026-09480-0)
-* **Article** [Enhanced Reading](https://link.springer.com/epdf/10.1007/s10849-026-09480-0?sharing_token=5flzqIvPeni5VjMMirQHcfe4RwlQNchNByi7wbcMAY5Zt4LMG8zKtsix77wmFzTarNCNDnJ8LJ3AJ9g_Z7GLoG396U_sGjYnxAfh_sA10w3wrCIyNEJzvKDAJL5r6fZtC13nmGYjDuPoAICMdpC8XUhAicMyUHXJW79OLH8LMXM%3D)
+* **Article:** [Enhanced Reading](https://link.springer.com/epdf/10.1007/s10849-026-09480-0?sharing_token=5flzqIvPeni5VjMMirQHcfe4RwlQNchNByi7wbcMAY5Zt4LMG8zKtsix77wmFzTarNCNDnJ8LJ3AJ9g_Z7GLoG396U_sGjYnxAfh_sA10w3wrCIyNEJzvKDAJL5r6fZtC13nmGYjDuPoAICMdpC8XUhAicMyUHXJW79OLH8LMXM%3D)
 
 ---
 
