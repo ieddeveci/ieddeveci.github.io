@@ -37,7 +37,7 @@ task-specific metrics that disentangle lexical, syntactic, and semantic error so
 making evaluation much more informative than standard accuracy scores.
 
 [Full thesis (METU Open Archive)](https://open.metu.edu.tr/handle/11511/109445) · 
-[Journal article (Journal of Logic, Language, and Information)](https://link.springer.com/article/10.1007/s10849-026-09480-0)
+[Journal article (Journal of Logic, Language and Information)](https://link.springer.com/article/10.1007/s10849-026-09480-0)
 
 ---
 
