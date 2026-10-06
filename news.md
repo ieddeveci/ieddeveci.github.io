@@ -47,6 +47,7 @@ permalink: /news/
 
 **November 2025:** "The Ouroboros of Benchmarking: Reasoning Evaluation in an Era of Saturation" accepted for poster presentation at the *NeurIPS 2025 Workshop on Evaluating the Evolving LLM Lifecycle: Benchmarks, Emergent Abilities, and Scaling*. 
 * **Description:** This study investigates performance trends across 52 benchmarks for OpenAI, Anthropic, and Google model families to examine how rapid evaluation saturation impacts the measurement of reasoning.
+* **Poster:** [NeurIPS 2025](https://neurips.cc/virtual/2025/loc/san-diego/122511)
 * **Preprint:** [arXiv:2511.01365](https://arxiv.org/abs/2511.01365)
 
 ---
