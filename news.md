@@ -9,7 +9,8 @@ permalink: /news/
 ---
 
 **October 2026:** "ArgForge: A Platform for Structured Argumentation Analysis and Explanation" is now publicly available on GitHub.
-* **Description:** ArgForge is an open-source Python framework for computational argumentation based on ASPIC+. It supports the construction and evaluation of structured arguments, attacks, defeats, and acceptability semantics, alongside explainable reasoning and comparative analysis across different configurations. The framework also provides a bilingual interface in English and Turkish.
+* **Description:** ArgForge is an open-source Python framework for computational argumentation based on ASPIC+. It supports the construction and evaluation of structured arguments, attacks, defeats, and acceptability semantics, alongside explainable reasoning and comparative analysis across different reasoning configurations. The framework also provides a bilingual interface in English and Turkish.
+* **Web Interface:** [ArgForge](https://ieddeveci.github.io/argforge/)
 * **Code:** [GitHub](https://github.com/ieddeveci/ArgForge)
 
 ---
