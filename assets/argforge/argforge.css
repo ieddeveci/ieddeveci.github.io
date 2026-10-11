@@ -673,6 +673,140 @@ tr.clickable:focus {
   opacity: 0.45;
 }
 
+.learn-toc {
+  columns: 2;
+  margin: 8px 0 12px;
+}
+.learn-progress {
+  color: var(--muted);
+}
+.lesson h2 {
+  margin-bottom: 8px;
+}
+.exercise {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  background: var(--paper);
+}
+.exercise h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.exercise .task {
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+.exercise pre.given {
+  margin: 0 0 10px;
+}
+.exercise textarea.editor {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+html[lang="tr"] textarea.editor.en,
+html[lang="en"] textarea.editor.tr,
+html[lang="tr"] pre.given.en,
+html[lang="en"] pre.given.tr {
+  display: none;
+}
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0 0 10px;
+}
+.choice {
+  cursor: pointer;
+}
+.exercise .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.feedback {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 4px solid var(--line);
+  line-height: 1.55;
+}
+.feedback.good {
+  border-left-color: var(--in);
+}
+.feedback.again {
+  border-left-color: var(--undec);
+}
+.solved-badge {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--in);
+  border: 1px solid var(--in);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-left: 6px;
+}
+.mini-graph {
+  position: relative;
+  height: 300px;
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.mini-graph svg.arggraph {
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 700px) {
+  .learn-toc {
+    columns: 1;
+  }
+}
+.choices .choice {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: inherit;
+}
+.exercise textarea.editor {
+  min-height: 130px;
+  height: auto;
+  resize: vertical;
+}
+.settings-line {
+  font-size: 12px;
+  color: var(--muted);
+  margin: -4px 0 10px;
+}
+.syntax-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.syntax-table th,
+.syntax-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.syntax-table code {
+  white-space: nowrap;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+html[lang="tr"] .table-wrap.en,
+html[lang="en"] .table-wrap.tr {
+  display: none;
+}
+
 :root {
   --paper: #0e0f0f;
   --card: #141616;

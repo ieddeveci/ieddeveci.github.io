@@ -103,6 +103,7 @@
       "Arka plandaki değerlendirme beklenmedik biçimde durdu; büyük olasılıkla tarayıcının belleği yetmedi: bu kuramın seçilen semantik için çok fazla kapsamı var. Temelli semantiği ya da daha küçük bir kuramı deneyin.",
     Introduction: "Giriş",
     Workspace: "Çalışma alanı",
+    Learn: "Öğren",
     Glossary: "Sözlük",
     Report: "Rapor",
     Sections: "Bölümler",
@@ -119,11 +120,11 @@
     "Theory text": "Kuram metni",
     "How to write a theory": "Kuram nasıl yazılır",
     Semantics: "Semantik",
-    "Grounded": "Temelli",
-    "Preferred":
-      "Tercih edilen",
-    "Stable": "Kararlı",
-    "Complete": "Tam",
+    "Grounded: one cautious answer": "Temelli: tek ve temkinli yanıt",
+    "Preferred: every maximal defensible view":
+      "Tercih edilen: savunulabilir en geniş görüşlerin her biri",
+    "Stable: views that defeat everything outside": "Kararlı: dışarıdaki her şeyi yenen görüşler",
+    "Complete: every self-consistent view": "Tam: kendi içinde tutarlı her görüş",
     "Comparing arguments": "Argümanların karşılaştırılması",
     "Last rule decides": "Son kural belirler",
     "Weakest step decides": "En zayıf adım belirler",
@@ -1639,7 +1640,7 @@
       renderClaimGraph();
     };
     $("evaluate").onclick = evaluate;
-    $("share").onclick = share;
+    if ($("share")) $("share").onclick = share;
     $("source").addEventListener("input", () => {
       ex.value = "";
       later();
