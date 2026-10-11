@@ -120,11 +120,11 @@
     "Theory text": "Kuram metni",
     "How to write a theory": "Kuram nasıl yazılır",
     Semantics: "Semantik",
-    "Grounded: one cautious answer": "Temelli: tek ve temkinli yanıt",
-    "Preferred: every maximal defensible view":
-      "Tercih edilen: savunulabilir en geniş görüşlerin her biri",
-    "Stable: views that defeat everything outside": "Kararlı: dışarıdaki her şeyi yenen görüşler",
-    "Complete: every self-consistent view": "Tam: kendi içinde tutarlı her görüş",
+    "Grounded": "Temelli",
+    "Preferred":
+      "Tercih edilen",
+    "Stable": "Kararlı",
+    "Complete": "Tam",
     "Comparing arguments": "Argümanların karşılaştırılması",
     "Last rule decides": "Son kural belirler",
     "Weakest step decides": "En zayıf adım belirler",
