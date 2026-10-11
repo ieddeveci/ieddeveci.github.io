@@ -701,8 +701,20 @@ tr.clickable:focus {
   color: var(--ink);
   background: var(--paper);
 }
-body.af-wide {
-  max-width: 1400px;
+body.af-page {
+  max-width: none;
+  padding-left: clamp(1rem, 3vw, 3rem);
+  padding-right: clamp(1rem, 3vw, 3rem);
+}
+body.af-page .page p,
+body.af-page .page li,
+body.af-page .lead {
+  max-width: none;
+}
+body.af-page .wrap,
+body.af-page .layout,
+body.af-page main {
+  max-width: none;
 }
 .af-subnav {
   display: flex;

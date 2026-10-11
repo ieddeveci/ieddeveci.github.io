@@ -12,7 +12,7 @@
   <script src="{{ '/assets/argforge/app.js' | relative_url }}" defer></script>{% else %}<script src="{{ '/assets/argforge/site.js' | relative_url }}" defer></script>{% endif %}
 </head>
 
-<body{% if page.workspace %} class="af-wide"{% endif %}>
+<body class="af-page{% if page.workspace %} af-wide{% endif %}">
   {% include header.html %}
 
   <div class="af-subnav" role="navigation" aria-label="ArgForge">
