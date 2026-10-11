@@ -351,7 +351,7 @@
     },
     {
       en: "Last link vs weakest link",
-      tr: "Son bağlantı ve en zayıf bağlantı",
+      tr: "Son halka ve en zayıf halka",
       src: "[axiom: a]\n[defeasible low: a => b]\n[defeasible high: b => p]\n[defeasible mid: a => -p]\n[prefer_rule: high > mid]\n[prefer_rule: mid > low]\n",
       src_tr:
         "[aksiyom: a]\n[feshedilebilir dusuk: a => b]\n[feshedilebilir yuksek: b => p]\n[feshedilebilir orta: a => -p]\n[kural_tercihi: yuksek > orta]\n[kural_tercihi: orta > dusuk]\n",
@@ -370,7 +370,7 @@
         "[aksiyom: a]\n[feshedilebilir x1: a => p1]\n[feshedilebilir x2: a => p2]\n[feshedilebilir t: p1 & p2 => q]\n[feshedilebilir y: a => -q]\n[kural_tercihi: y > x1]\n[kural_tercihi: x2 > y]\n[kural_tercihi: t > y]\n",
       note: "Compared by all their rules (weakest link), q's argument uses x1, x2 and t; -q's uses y, where x1 < y < x2. Elitist: one weaker rule (x1) is enough to lose, so -q wins. Switch to “Democratic”: every rule must be weaker, so q wins.",
       note_tr:
-        "Tüm kurallarına göre karşılaştırıldığında (en zayıf bağlantı) q argümanı x1, x2 ve t'yi, -q argümanı y'yi kullanır; burada x1 < y < x2. Elitist: kaybetmek için daha zayıf tek bir kural (x1) yeter, -q kazanır. “Demokratik” seçeneğine geçin: her kural daha zayıf olmalıdır, q kazanır.",
+        "Tüm kurallarına göre karşılaştırıldığında (en zayıf halka) q argümanı x1, x2 ve t'yi, -q argümanı y'yi kullanır; burada x1 < y < x2. Elitist: kaybetmek için daha zayıf tek bir kural (x1) yeter, -q kazanır. “Demokratik” seçeneğine geçin: her kural daha zayıf olmalıdır, q kazanır.",
       settings: {
         ordering: "weakest_link",
         setOrdering: "elitist",
