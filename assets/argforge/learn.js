@@ -1571,7 +1571,7 @@
           goal: "grounded",
           task: tx(
             "A harder case with ten arguments. The toy penguin is back, so one argument is defeated but later defended. On top of that, two sources disagree about whether it is {windy}, and wind would stop the bird from migrating. Label all ten arguments so that the result is the grounded labelling. The table lists each argument's number next to what it says.",
-            "On argümanlı daha zor bir durum. Oyuncak penguen yine burada, yani bir argüman yeniliyor ama sonra yeniden savunuluyor. Üstelik iki kaynak havanın {windy} olup olmadığı konusunda farklı şeyler söylüyor ve rüzgar kuşun göç etmesini engelliyor. On argümanın hepsini etiketleyin. Sonuç temelli etiketleme olmalı. Tabloda her argümanın numarası, ne söylediğinin yanında yazıyor.",
+            "On argümanlı daha zor bir durum. Oyuncak penguen yine burada, yani bir argüman yeniliyor ama sonra yeniden savunuluyor. Üstelik iki kaynak havanın {windy} olup olmadığı konusunda farklı şeyler söylüyor ve rüzgar kuşun göç etmesini engelliyor. On argümanın hepsini etiketleyin. Sonuç temelli etiketleme olmalı.",
           ),
           given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<premise>: {toy}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]\n[<prefer_rule>: r2 > r1]\n[<defeasible> r3: {toy} => -r2]\n[<defeasible> r4: {flies} => {migrates}]\n[<premise>: {windy}]\n[<premise>: -{windy}]\n[<defeasible> r5: {windy} => -{migrates}]",
           hint: tx(
