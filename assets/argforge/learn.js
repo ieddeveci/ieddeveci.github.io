@@ -21,6 +21,25 @@
     clear: ["clear sky", "açık gökyüzü"],
     cancelled: ["picnic cancelled", "piknik iptal"],
     toy: ["toy", "oyuncak"],
+    expA: ["Ayşe is an expert on medicines", "Ayşe ilaç uzmanı"],
+    saysA: ["Ayşe says the drug is safe", "Ayşe ilacın güvenli olduğunu söylüyor"],
+    safe: ["the drug is safe", "ilaç güvenli"],
+    paid: ["Ayşe is paid by the manufacturer", "Ayşe üreticiden para alıyor"],
+    expM: ["Mehmet is an expert on medicines", "Mehmet ilaç uzmanı"],
+    saysM: ["Mehmet says the drug is not safe", "Mehmet ilacın güvenli olmadığını söylüyor"],
+    passed: ["passed", "sınavı geçti"],
+    cheated: ["cheated", "kopya çekti"],
+    cert: ["certificate", "sertifika"],
+    vehicle: ["vehicle", "araç"],
+    amb: ["ambulance", "ambulans"],
+    duty: ["on duty", "görevde"],
+    allowed: ["allowed in the park", "parka girebilir"],
+    wsays: ["the witness says red", "tanık kırmızı diyor"],
+    cshows: ["the camera shows blue", "kamera mavi gösteriyor"],
+    red: ["red", "kırmızı"],
+    blue: ["blue", "mavi"],
+    windy: ["windy", "rüzgarlı"],
+    wings: ["has wings", "kanatlı"],
   };
   const KW = {
     premise: ["premise", "öncül"],
@@ -31,6 +50,9 @@
     prefer_premise: ["prefer_premise", "öncül_tercihi"],
     contrary: ["contrary", "karşıt"],
     contradictory: ["contradictory", "çelişik"],
+    rexpert: ["expert", "uzman"],
+    rexpert2: ["expert2", "uzman2"],
+    rbias: ["bias", "taraf"],
   };
   const STATUS = {
     JUSTIFIED: ["justified", "gerekçelendirilmiş"],
@@ -97,8 +119,8 @@
         tr = `hem feshedilebilir kuralları (${set(ra)} ile ${set(rv)}) hem de öncülleri (${set(pa)} ile ${set(pv)}) karşılaştırılır`;
       }
       return tx(
-        `Under weakest link with ${dem ? "democratic" : "elitist"} comparison, ${en}. ${a.alias} comes out weaker, so its attack fails.`,
-        `En zayıf halkada ${dem ? "demokratik" : "elitist"} karşılaştırmayla ${tr}. ${a.alias} daha zayıf kaldığı için saldırısı başarısız olur.`,
+        `Under weakest link with the ${dem ? "democratic" : "elitist"} set ordering, ${en}. ${a.alias} comes out weaker, so its attack fails.`,
+        `En zayıf halkada ${dem ? "demokratik" : "elitist"} küme sıralamasıyla ${tr}. ${a.alias} daha zayıf kaldığı için saldırısı başarısız olur.`,
       );
     }
     const la = lastDef(r, attack.attacker),
@@ -139,8 +161,8 @@
   function settingsText(settings) {
     const st = Object.assign({}, SETTINGS, settings || {});
     return tx(
-      `Settings: ${SEM[st.semantics][0]} semantics · ${st.ordering === "last_link" ? "last link" : "weakest link"} · ${st.setOrdering} comparison · contrapositives ${st.transposition ? "added" : "not added"}`,
-      `Ayarlar: ${SEM[st.semantics][1]} semantik · ${st.ordering === "last_link" ? "son halka" : "en zayıf halka"} · ${st.setOrdering === "elitist" ? "elitist" : "demokratik"} karşılaştırma · ters yönlü hâller ${st.transposition ? "ekleniyor" : "eklenmiyor"}`,
+      `Settings: ${SEM[st.semantics][0]} semantics · ${st.ordering === "last_link" ? "last link" : "weakest link"} · ${st.setOrdering} set ordering · contrapositives ${st.transposition ? "added" : "not added"}`,
+      `Ayarlar: ${SEM[st.semantics][1]} semantik · ${st.ordering === "last_link" ? "son halka" : "en zayıf halka"} · ${st.setOrdering === "elitist" ? "elitist" : "demokratik"} küme sıralaması · ters yönlü hâller ${st.transposition ? "ekleniyor" : "eklenmiyor"}`,
     );
   }
   function context(lang, source, given, settings) {
@@ -185,6 +207,30 @@
       if ((ctx.givenDecls[part] || []).some((x) => !now.has(key(x)))) return false;
     }
     return true;
+  }
+  const neg = (x) => (x.startsWith("-") ? x.slice(1) : "-" + x);
+  const factsAbout = (ctx, lit) => (ctx.decls.facts || []).filter((f) => f.literal === lit || f.literal === neg(lit));
+  const newRules = (ctx) => {
+    const old = new Set((ctx.givenDecls.rules || []).map((x) => x.name));
+    return (ctx.decls.rules || []).filter((x) => !old.has(x.name));
+  };
+  const hasAll = (xs, ys) => ys.every((y) => xs.includes(y));
+  const argsWithRule = (r, name) => r.arguments.map((a, i) => i).filter((i) => r.arguments[i].rule === name);
+  const childConclusions = (r, i) => r.arguments[i].children.map((c) => r.arguments[c].conclusion);
+  const label = (r, i) => r.arguments[i].grounded;
+  const bearers = (r, c) => r.arguments.map((a, i) => i).filter((i) => r.arguments[i].conclusion === c);
+  function claimReason(r, c) {
+    const s = statusOf(r, c);
+    if (s === "JUSTIFIED")
+      return tx(`The grounded extension contains an argument for ${q(c)}.`, `Temelli kapsam ${q(c)} için bir argüman içeriyor.`);
+    if (s === "OVERRULED")
+      return tx(`Every argument for ${q(c)} is defeated by an accepted argument.`, `${q(c)} için kurulan her argüman, kabul edilmiş bir argüman tarafından yeniliyor.`);
+    if (s === "UNDECIDED")
+      return tx(
+        `No argument for ${q(c)} is accepted, but not all of them are defeated by an accepted argument either.`,
+        `${q(c)} için kabul edilmiş bir argüman yok, ama onun için kurulan argümanların hepsi de kabul edilmiş bir argüman tarafından yenilmiyor.`,
+      );
+    return tx("", "");
   }
   const missingGiven = tx(
     "Keep the given lines as they are and add your own declarations below them.",
@@ -258,14 +304,19 @@
                   `Aksiyom da ${q(c)} iddiasını gerekçelendirir, ama aksiyoma hiçbir zaman saldırılamaz. Bu alıştırmada itiraz edilebilecek bir ifade istiyoruz. O yüzden bir öncül yazın.`,
                 ),
               };
-            if (statusOf(ctx.r, c) === "JUSTIFIED" && fact)
+            const own = ctx.r.arguments.findIndex((a) => a.kind === "premise" && a.conclusion === c);
+            if (statusOf(ctx.r, c) === "JUSTIFIED" && fact && own >= 0) {
+              const alias = ctx.r.arguments[own].alias;
+              const attacked = ctx.r.attacks.some((a) => a.target === own);
               return {
                 ok: true,
-                msg: tx(
-                  `Your premise forms the argument A1 for ${q(c)}. Nothing attacks it, so the claim is justified.`,
-                  `Öncülünüz ${q(c)} için A1 argümanını oluşturdu. Ona saldıran bir şey olmadığı için iddia gerekçelendirilmiş oldu.`,
-                ),
+                msg: join([
+                  tx(`Your premise forms the argument ${alias} for ${q(c)}.`, `Öncülünüz ${q(c)} için ${alias} argümanını oluşturdu.`),
+                  attacked ? join(lines(ctx.r)) : tx("Nothing attacks it.", "Ona saldıran bir şey yok."),
+                  claimLine(ctx.r, c),
+                ]),
               };
+            }
             return {
               ok: false,
               msg: join([claimLine(ctx.r, c), tx(`Write a premise whose statement is exactly ${q(c)}.`, `İfadesi tam olarak ${q(c)} olan bir öncül yazın.`)]),
@@ -318,34 +369,44 @@
             const c = w("wet", ctx.lang),
               rn = w("rain", ctx.lang);
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
-            const viaRule = ctx.r.arguments.find((a) => a.conclusion === c && a.kind === "defeasible");
-            if (statusOf(ctx.r, c) === "JUSTIFIED" && viaRule)
-              return {
-                ok: true,
-                msg: tx(
-                  `The argument ${viaRule.alias} applies the rule ${viaRule.rule} to the premise ${q(rn)}. Nothing attacks it, so ${q(c)} is justified.`,
-                  `${viaRule.alias} argümanı, ${viaRule.rule} kuralını ${q(rn)} öncülüne uyguluyor. Ona saldıran bir şey olmadığı için ${q(c)} gerekçelendirilmiş oldu.`,
-                ),
-              };
-            if (ctx.r.arguments.find((a) => a.conclusion === c && a.kind === "strict"))
+            if (factsAbout(ctx, c).length)
               return {
                 ok: false,
                 msg: tx(
-                  "That is a strict rule (->). The conclusion comes out right, but a strict rule says that rain always makes the streets wet. Rain usually does, not always, so use a defeasible rule (=>).",
-                  "Bu bir katı kural (->). Sonuç doğru çıkıyor, ama katı kural yağmurun sokakları her zaman ıslattığını söyler. Yağmur sokakları genellikle ıslatır, her zaman değil. O yüzden feshedilebilir bir kural (=>) kullanın.",
+                  `${q(c)} should not be declared directly. The task is to derive it from ${q(rn)} with a defeasible rule.`,
+                  `${q(c)} doğrudan bildirilmemeli. Görev, bu sonucu ${q(rn)} ifadesinden feshedilebilir bir kuralla türetmek.`,
                 ),
               };
-            if (statusOf(ctx.r, c) === "JUSTIFIED")
+            const rule = (ctx.decls.rules || []).find((x) => x.kind === "defeasible" && x.consequent === c && x.antecedents.length === 1 && x.antecedents[0] === rn);
+            if (!rule) {
+              const strict = (ctx.decls.rules || []).find((x) => x.kind === "strict" && x.consequent === c);
+              if (strict)
+                return {
+                  ok: false,
+                  msg: tx(
+                    "That is a strict rule (->), which says that rain always makes the streets wet. Rain usually does, not always, so use a defeasible rule (=>).",
+                    "Bu bir katı kural (->) ve yağmurun sokakları her zaman ıslattığını söylüyor. Yağmur sokakları genellikle ıslatır, her zaman değil. O yüzden feshedilebilir bir kural (=>) kullanın.",
+                  ),
+                };
               return {
                 ok: false,
                 msg: tx(
-                  `Right now ${q(c)} is justified only because you declared it directly. The task is to derive it from ${q(rn)} with a rule.`,
-                  `Şu anda ${q(c)} yalnızca onu doğrudan bildirdiğiniz için gerekçelendirilmiş. Görev, bu sonucu ${q(rn)} ifadesinden bir kuralla türetmek.`,
+                  `Add a defeasible rule whose only condition is ${q(rn)} and whose conclusion is ${q(c)}.`,
+                  `Tek koşulu ${q(rn)}, sonucu ${q(c)} olan feshedilebilir bir kural ekleyin.`,
                 ),
               };
+            }
+            const arg = argsWithRule(ctx.r, rule.name).find((i) => childConclusions(ctx.r, i)[0] === rn);
+            if (arg === undefined) return { ok: false, msg: join([claimLine(ctx.r, c)]) };
+            const a = ctx.r.arguments[arg];
+            const ok = statusOf(ctx.r, c) === "JUSTIFIED";
             return {
-              ok: false,
-              msg: join([claimLine(ctx.r, c), tx(`Add a defeasible rule whose condition is ${q(rn)} and whose conclusion is ${q(c)}.`, `Koşulu ${q(rn)}, sonucu ${q(c)} olan feshedilebilir bir kural ekleyin.`)]),
+              ok,
+              msg: join([
+                tx(`The argument ${a.alias} applies the rule ${rule.name} to ${q(rn)}.`, `${a.alias} argümanı, ${rule.name} kuralını ${q(rn)} ifadesine uyguluyor.`),
+                ...lines(ctx.r),
+                claimLine(ctx.r, c),
+              ]),
             };
           },
         },
@@ -361,26 +422,46 @@
           solution: "[<premise>: {rain}]\n[<defeasible> r1: {rain} => {wet}]\n[<defeasible> r2: {wet} => {slippery}]",
           wrong: ["[<premise>: {rain}]\n[<defeasible> r1: {rain} => {slippery}]"],
           check(ctx) {
-            const c = w("slippery", ctx.lang);
+            const c = w("slippery", ctx.lang),
+              mid = w("wet", ctx.lang),
+              rn = w("rain", ctx.lang);
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
-            const chained = ctx.r.arguments.find((a) => a.conclusion === c && a.defeasibleRules.length >= 2);
-            if (statusOf(ctx.r, c) === "JUSTIFIED" && chained)
-              return {
-                ok: true,
-                msg: tx(
-                  `The argument ${chained.alias} is built in two steps and uses the rules ${chained.defeasibleRules.join(" and ")}. So ${q(c)} is justified.`,
-                  `${chained.alias} argümanı iki adımda kuruluyor ve ${chained.defeasibleRules.join(" ile ")} kurallarını kullanıyor. Böylece ${q(c)} gerekçelendirilmiş oldu.`,
-                ),
-              };
-            if (statusOf(ctx.r, c) === "JUSTIFIED")
+            if (factsAbout(ctx, c).length || factsAbout(ctx, mid).length)
               return {
                 ok: false,
                 msg: tx(
-                  `Right now ${q(c)} is justified, but in a single step. Go through ${q(w("wet", "en"))} first and only then to ${q(c)}.`,
-                  `Şu anda ${q(c)} gerekçelendirilmiş, ama tek adımda. Önce ${q(w("wet", "tr"))} ifadesine, oradan da ${q(c)} ifadesine gidin.`,
+                  `Do not declare ${q(mid)} or ${q(c)} directly. Both should be derived with rules.`,
+                  `${q(mid)} ya da ${q(c)} ifadesini doğrudan bildirmeyin. İkisi de kurallarla türetilmeli.`,
                 ),
               };
-            return { ok: false, msg: join([claimLine(ctx.r, c), claimLine(ctx.r, w("wet", ctx.lang))]) };
+            const first = (ctx.decls.rules || []).filter((x) => x.kind === "defeasible" && x.consequent === mid && x.antecedents.length === 1 && x.antecedents[0] === rn);
+            const second = (ctx.decls.rules || []).filter((x) => x.kind === "defeasible" && x.consequent === c && x.antecedents.length === 1 && x.antecedents[0] === mid);
+            if (!first.length || !second.length)
+              return {
+                ok: false,
+                msg: join([
+                  !first.length ? tx(`The chain needs a defeasible rule from ${q(rn)} to ${q(mid)}.`, `Zincirde ${q(rn)} ifadesinden ${q(mid)} ifadesine giden feshedilebilir bir kural olmalı.`) : tx("", ""),
+                  !second.length ? tx(`The chain needs a defeasible rule from ${q(mid)} to ${q(c)}.`, `Zincirde ${q(mid)} ifadesinden ${q(c)} ifadesine giden feshedilebilir bir kural olmalı.`) : tx("", ""),
+                ]),
+              };
+            const firstNames = first.map((x) => x.name);
+            const chained = second
+              .flatMap((x) => argsWithRule(ctx.r, x.name))
+              .find((i) => ctx.r.arguments[i].children.some((ch) => firstNames.includes(ctx.r.arguments[ch].rule)));
+            if (chained === undefined) return { ok: false, msg: join([claimLine(ctx.r, mid), claimLine(ctx.r, c)]) };
+            const a = ctx.r.arguments[chained];
+            const firstArg = ctx.r.arguments[a.children[0]];
+            return {
+              ok: statusOf(ctx.r, c) === "JUSTIFIED",
+              msg: join([
+                tx(
+                  `The argument ${a.alias} applies ${a.rule} to ${firstArg.alias}, which itself applies ${firstArg.rule} to ${q(rn)}. The chain goes through ${q(mid)} as required.`,
+                  `${a.alias} argümanı ${a.rule} kuralını ${firstArg.alias} argümanına uyguluyor. Bu argüman da ${firstArg.rule} kuralını ${q(rn)} ifadesine uyguluyor. Zincir istendiği gibi ${q(mid)} üzerinden geçiyor.`,
+                ),
+                ...lines(ctx.r),
+                claimLine(ctx.r, c),
+              ]),
+            };
           },
         },
       ],
@@ -389,8 +470,8 @@
       id: "rebut",
       title: tx("Negation and rebutting", "Olumsuzlama ve sonuca saldırı"),
       intro: tx(
-        "The statement -x is the negation of x. An argument for -x attacks an argument that reaches x through a defeasible rule. This kind of attack is called rebutting. A conclusion reached through a strict rule cannot be rebutted.",
-        "-x ifadesi x'in değilidir. -x için kurulan bir argüman, x sonucuna feshedilebilir bir kuralla varan argümana saldırır. Bu saldırı türüne sonuca saldırı denir. Katı bir kuralla elde edilen bir sonuca bu şekilde saldırılamaz.",
+        "The statement -x is the negation of x. An argument for -x attacks an argument that reaches x through a defeasible rule. This kind of attack is called rebutting. A conclusion reached through a strict inference cannot be rebutted directly, but the argument may still be open to attack through its premises or its defeasible sub-arguments.",
+        "-x ifadesi x'in değilidir. -x için kurulan bir argüman, x sonucuna feshedilebilir bir kuralla varan argümana saldırır. Bu saldırı türüne sonuca saldırı denir. Katı çıkarımla elde edilen bir sonuca doğrudan sonuca saldırı yapılamaz. Ancak argümanın öncülleri ya da feshedilebilir alt argümanları saldırıya açık olabilir.",
       ),
       exercises: [
         {
@@ -407,19 +488,22 @@
           check(ctx) {
             const c = w("flies", ctx.lang);
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
-            const att = ctx.r.attacks.find((a) => a.kind === "rebut" && ctx.r.arguments[a.target].conclusion === c);
-            if (att)
-              return {
-                ok: true,
-                msg: join([
-                  attackLine(ctx.r, att),
-                  claimLine(ctx.r, c),
-                  tx(
-                    "Arguments for x and -x rebut each other. When there is no preference between them, neither can win.",
-                    "x ve -x için kurulan argümanlar birbirinin sonucuna saldırır. Aralarında bir tercih yoksa hiçbiri kazanamaz.",
-                  ),
-                ]),
-              };
+            const own = bearers(ctx.r, c);
+            const att = ctx.r.attacks.find((a) => a.kind === "rebut" && own.includes(a.target) && ctx.r.arguments[a.attacker].conclusion === neg(c));
+            if (att) {
+              const back = ctx.r.attacks.filter((a) => a.attacker === att.target && a.target === att.attacker);
+              let why;
+              if (att.succeeds && back.some((a) => a.succeeds))
+                why = tx("Both attacks succeed and nothing decides between them, so neither argument is accepted.", "İki saldırı da başarılı ve aralarında karar veren bir şey yok, bu yüzden iki argüman da kabul edilmiyor.");
+              else if (att.succeeds && !back.length)
+                why = tx(
+                  `The argument for ${q(c)} cannot attack yours back, because your argument does not end with a defeasible rule and does not rest on an attackable premise. So your rebuttal decides the matter.`,
+                  `${q(c)} argümanı sizinkine karşılık veremiyor, çünkü sizin argümanınız feshedilebilir bir kuralla bitmiyor ve saldırıya açık bir öncüle dayanmıyor. Bu yüzden saldırınız sonucu belirliyor.`,
+                );
+              else if (att.succeeds) why = join([...back.filter((a) => !a.succeeds).map((a) => whyFailed(ctx.r, a)), tx("Its counterattack fails, so your rebuttal decides the matter.", "Karşı saldırısı başarısız olduğu için sizin saldırınız sonucu belirliyor.")]);
+              else why = whyFailed(ctx.r, att);
+              return { ok: true, msg: join([attackLine(ctx.r, att), ...back.map((a) => attackLine(ctx.r, a)), why, claimLine(ctx.r, c)]) };
+            }
             const other = ctx.r.attacks.find((a) => a.kind === "undermine");
             if (other)
               return {
@@ -432,8 +516,8 @@
             return {
               ok: false,
               msg: tx(
-                `Nothing attacks the argument for ${q(c)} yet. The attacking argument must conclude ${q("-" + c)}.`,
-                `${q(c)} için kurulan argümana henüz saldıran bir şey yok. Saldıran argümanın sonucu ${q("-" + c)} olmalı.`,
+                `Nothing attacks the argument for ${q(c)} yet. The attacking argument must conclude ${q(neg(c))}.`,
+                `${q(c)} için kurulan argümana henüz saldıran bir şey yok. Saldıran argümanın sonucu ${q(neg(c))} olmalı.`,
               ),
             };
           },
@@ -489,24 +573,29 @@
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const on = ctx.r.attacks.filter((a) => a.kind === "undermine" && ctx.r.arguments[witnessOf(ctx.r, a)].conclusion === b);
             const win = on.find((a) => a.succeeds);
-            if (win && statusOf(ctx.r, c) !== "JUSTIFIED")
-              return {
-                ok: true,
-                msg: join([
-                  attackLine(ctx.r, win),
-                  claimLine(ctx.r, c),
-                  tx(
-                    "An argument that uses no defeasible rule does not count as weaker than the premise, so the attack succeeds. The premise attacks back, so both end up undecided.",
-                    "Feshedilebilir kural kullanmayan bir argüman öncülden zayıf sayılmaz, bu yüzden saldırı başarılı oldu. Öncül de karşılık verdiği için ikisi de kararsız kaldı.",
-                  ),
-                ]),
-              };
-            if (on.length) return { ok: false, msg: join([attackLine(ctx.r, on[0]), whyFailed(ctx.r, on[0])]) };
+            if (win && statusOf(ctx.r, c) !== "JUSTIFIED") {
+              const premiseArg = witnessOf(ctx.r, win);
+              const back = ctx.r.attacks.filter((a) => a.attacker === premiseArg && a.target === win.attacker);
+              const parts = [attackLine(ctx.r, win), ...back.map((a) => attackLine(ctx.r, a))];
+              parts.push(
+                tx(
+                  "Your argument uses no defeasible rule, so under last link it does not count as weaker than the premise and the attack succeeds.",
+                  "Argümanınız feshedilebilir kural kullanmıyor. Bu yüzden son halkaya göre öncülden zayıf sayılmıyor ve saldırı başarılı oluyor.",
+                ),
+              );
+              if (back.some((a) => a.succeeds))
+                parts.push(tx(`The premise ${q(b)} attacks back successfully, so neither is accepted.`, `${q(b)} öncülü de başarılı bir karşılık veriyor, bu yüzden ikisi de kabul edilmiyor.`));
+              else
+                parts.push(tx(`The premise ${q(b)} cannot answer this attack, so it is defeated.`, `${q(b)} öncülü bu saldırıya karşılık veremiyor, bu yüzden yeniliyor.`));
+              parts.push(claimLine(ctx.r, b), claimLine(ctx.r, c), claimReason(ctx.r, c));
+              return { ok: true, msg: join(parts) };
+            }
+            if (on.length) return { ok: false, msg: join([attackLine(ctx.r, on[0]), whyFailed(ctx.r, on[0]), claimLine(ctx.r, c)]) };
             return {
               ok: false,
               msg: tx(
-                `Nothing attacks the premise ${q(b)} yet. You need an argument whose conclusion is ${q("-" + b)}.`,
-                `${q(b)} öncülüne henüz saldıran bir şey yok. Sonucu ${q("-" + b)} olan bir argümana ihtiyacınız var.`,
+                `Nothing attacks the premise ${q(b)} yet. You need an argument whose conclusion is ${q(neg(b))}.`,
+                `${q(b)} öncülüne henüz saldıran bir şey yok. Sonucu ${q(neg(b))} olan bir argümana ihtiyacınız var.`,
               ),
             };
           },
@@ -523,32 +612,49 @@
           solution: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -r1]",
           wrong: ["[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]"],
           check(ctx) {
-            const c = w("flies", ctx.lang);
+            const c = w("flies", ctx.lang),
+              pg = w("penguin", ctx.lang);
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
-            const cut = ctx.r.attacks.find((a) => a.kind === "undercut" && a.succeeds);
-            if (cut && statusOf(ctx.r, c) === "OVERRULED")
-              return {
-                ok: true,
-                msg: join([
-                  attackLine(ctx.r, cut),
-                  claimLine(ctx.r, c),
-                  tx(
-                    `An undercut does not argue for ${q("-" + w("flies", "en"))}. It only says that r1 does not work here. The argument for ${q(w("flies", "en"))} is defeated and nothing else supports it.`,
-                    `Kurala saldırı ${q("-" + w("flies", "tr"))} için bir argüman kurmaz, yalnızca r1 kuralının burada işlemediğini söyler. Böylece ${q(w("flies", "tr"))} için kurulan argüman yenilir ve onu destekleyen başka bir argüman kalmaz.`,
-                  ),
-                ]),
-              };
-            if (ctx.r.attacks.some((a) => a.kind === "rebut"))
+            if ((ctx.decls.facts || []).some((f) => f.literal === "-r1"))
               return {
                 ok: false,
-                msg: join([
-                  claimLine(ctx.r, c),
-                  tx("That attacks the conclusion. Attack the rule itself instead: the conclusion of your rule should be -r1.", "Bu, sonuca saldırıyor. Bunun yerine kuralın kendisine saldırın: kuralınızın sonucu -r1 olmalı."),
-                ]),
+                msg: tx(
+                  `That declares -r1 directly. The task asks for a rule that applies when ${q(pg)} holds and concludes -r1.`,
+                  `Bu, -r1 ifadesini doğrudan bildiriyor. Görev, ${q(pg)} geçerliyken uygulanan ve -r1 sonucuna varan bir kural yazmak.`,
+                ),
               };
+            const cutters = newRules(ctx).filter((x) => x.consequent === "-r1" && x.antecedents.includes(pg));
+            if (!cutters.length) {
+              if (ctx.r.attacks.some((a) => a.kind === "rebut"))
+                return {
+                  ok: false,
+                  msg: join([
+                    claimLine(ctx.r, c),
+                    tx("That attacks the conclusion. Attack the rule itself instead: your rule should conclude -r1.", "Bu, sonuca saldırıyor. Bunun yerine kuralın kendisine saldırın: kuralınızın sonucu -r1 olmalı."),
+                  ]),
+                };
+              return {
+                ok: false,
+                msg: tx(`Add a rule whose condition includes ${q(pg)} and whose conclusion is -r1.`, `Koşulları arasında ${q(pg)} bulunan ve sonucu -r1 olan bir kural ekleyin.`),
+              };
+            }
+            const names = cutters.map((x) => x.name);
+            const cut = ctx.r.attacks.find((a) => a.kind === "undercut" && names.includes(ctx.r.arguments[a.attacker].rule));
+            if (!cut) return { ok: false, msg: tx("Your rule never applies, so it attacks nothing. Check that its conditions can be derived.", "Kuralınız hiç uygulanmıyor, bu yüzden hiçbir şeye saldırmıyor. Koşullarının türetilebildiğini kontrol edin.") };
+            const ok = cut.succeeds && statusOf(ctx.r, c) === "OVERRULED";
             return {
-              ok: false,
-              msg: join([claimLine(ctx.r, c), tx("There is no undercut yet. The conclusion of your rule should be -r1.", "Henüz kurala bir saldırı yok. Kuralınızın sonucu -r1 olmalı.")]),
+              ok,
+              msg: join([
+                attackLine(ctx.r, cut),
+                claimLine(ctx.r, c),
+                claimReason(ctx.r, c),
+                ok
+                  ? tx(
+                      "An undercut does not argue for the opposite conclusion. It only says that the rule does not apply here.",
+                      "Kurala saldırı karşıt sonuç için bir argüman kurmaz. Yalnızca kuralın burada geçerli olmadığını söyler.",
+                    )
+                  : tx("", ""),
+              ]),
             };
           },
         },
@@ -556,10 +662,10 @@
     },
     {
       id: "preferences",
-      title: tx("Preferences and defeat", "Tercihler ve yenilgi"),
+      title: tx("Preferences and defeat", "Tercihler ve başarılı saldırılar"),
       intro: tx(
-        "Preferences decide the outcome of attacks between arguments. Writing [prefer_rule: r2 > r1] makes the rule r2 stronger than r1, and [prefer_premise: a > b] makes the premise a more reliable than b. A rebut or an undermine fails when the attacker is weaker. An attack that succeeds is called a defeat. Undercuts, and attacks through a one-way contrary, are not affected by preferences.",
-        "Tercihler, argümanlar arasındaki saldırıların sonucunu belirler. [kural_tercihi: r2 > r1] yazdığınızda r2 kuralı r1'den güçlü olur. [öncül_tercihi: a > b] ise a öncülünü b'den daha güvenilir kılar. Saldıran argüman daha zayıfsa sonuca ve öncüle yapılan saldırılar başarısız olur. Başarılı bir saldırıya yenilgi denir. Kurala saldırılar ve tek yönlü bir karşıtlık üzerinden yapılan saldırılar ise tercihlerden etkilenmez.",
+        "Preferences decide the outcome of attacks between arguments. Writing [prefer_rule: r2 > r1] makes the rule r2 stronger than r1, and [prefer_premise: a > b] makes the premise a more reliable than b. A rebut or an undermine fails when the attacker is weaker. An attack that succeeds is called a defeat, or a successful attack. Undercuts, and attacks through a one-way contrary, are not affected by preferences.",
+        "Tercihler, argümanlar arasındaki saldırıların sonucunu belirler. [kural_tercihi: r2 > r1] yazdığınızda r2 kuralı r1'den güçlü olur. [öncül_tercihi: a > b] ise a öncülünü b'den daha güvenilir kılar. Saldıran argüman daha zayıfsa sonuca ve öncüle yapılan saldırılar başarısız olur. Başarılı olan saldırı, saldırdığı argümanı yener. Kurala saldırılar ve tek yönlü bir karşıtlık üzerinden yapılan saldırılar ise tercihlerden etkilenmez.",
       ),
       exercises: [
         {
@@ -607,8 +713,8 @@
           id: "preferences-3",
           kind: "predict",
           task: tx(
-            "In this theory r1 is preferred to r2, while r2 undercuts r1. Is {flies} still overruled?",
-            "Bu kuramda r1, r2'ye tercih ediliyor. Öte yandan r2, r1 kuralına saldırıyor. {flies} hâlâ reddedilmiş mi?",
+            "In this theory r1 is preferred to r2, while r2 undercuts r1. What is the status of {flies}?",
+            "Bu kuramda r1, r2'ye tercih ediliyor. Öte yandan r2, r1 kuralına saldırıyor. {flies} iddiasının durumu nedir?",
           ),
           given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -r1]\n[<prefer_rule>: r1 > r2]",
           choices: ["OVERRULED", "JUSTIFIED", "UNDECIDED"],
@@ -630,8 +736,8 @@
       id: "conflicts",
       title: tx("Contraries and contradictories", "Karşıtlar ve çelişikler"),
       intro: tx(
-        "Negation is not the only kind of conflict. Writing [contradictory: a ^ b] declares that a and b exclude each other, so arguments for them attack each other, just like x and -x. [contrary: a ^ b] works in one direction only: a attacks b, but b does not attack a. Attacks through a contrary are not affected by preferences.",
-        "Çatışmanın tek biçimi olumsuzlama değildir. [çelişik: a ^ b] yazdığınızda a ile b birbirini dışlar. Bu ifadeler için kurulan argümanlar, tıpkı x ile -x gibi, birbirine saldırır. [karşıt: a ^ b] ise tek yönlüdür: a, b'ye saldırır ama b, a'ya saldırmaz. Karşıtlık üzerinden yapılan saldırılar tercihlerden etkilenmez.",
+        "Negation is not the only kind of conflict. Writing [contradictory: a ^ b] declares that a and b exclude each other, so arguments for them attack each other, just like x and -x. [contrary: a ^ b] works in one direction only: a attacks b, but b does not attack a. Attacks through a contrary are not affected by preferences. A declared conflict only creates an attack where the attacked argument has an attackable point: a premise, or a conclusion reached by a defeasible rule.",
+        "Çatışmanın tek biçimi olumsuzlama değildir. [çelişik: a ^ b] yazdığınızda a ile b birbirini dışlar. Bu ifadeler için kurulan argümanlar, tıpkı x ile -x gibi, birbirine saldırır. [karşıt: a ^ b] ise tek yönlüdür: a, b'ye saldırır ama b, a'ya saldırmaz. Karşıtlık üzerinden yapılan saldırılar tercihlerden etkilenmez. Bir çatışma bildirmek, bu ifadelere varan her argüman arasında kendiliğinden saldırı oluşturmaz. Saldırılan argümanda saldırıya açık bir nokta bulunmalıdır: bir öncül ya da feshedilebilir bir kuralla varılan bir sonuç.",
       ),
       exercises: [
         {
@@ -649,18 +755,30 @@
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const g = w("guilty", ctx.lang),
               i = w("innocent", ctx.lang);
-            const won = ctx.r.attacks.filter((a) => a.succeeds);
-            const one = (x, y) => won.some((a) => ctx.r.arguments[a.attacker].conclusion === x && ctx.r.arguments[a.target].conclusion === y);
-            if (one(g, i) && one(i, g)) return { ok: true, msg: join([...lines(ctx.r), claimLine(ctx.r, g), claimLine(ctx.r, i)]) };
-            if (one(g, i) || one(i, g))
+            const cs = ctx.decls.contraries || [];
+            const pair = (x) => [x.source, x.target].includes(g) && [x.source, x.target].includes(i);
+            const sym = cs.some((x) => x.symmetric && pair(x));
+            const oneWays = cs.filter((x) => !x.symmetric && pair(x));
+            const bothWays = sym || (oneWays.some((x) => x.source === g) && oneWays.some((x) => x.source === i));
+            if (!cs.some(pair))
+              return { ok: false, msg: tx(`Declare a conflict between ${q(g)} and ${q(i)}.`, `${q(g)} ile ${q(i)} arasında bir çatışma bildirin.`) };
+            if (!bothWays)
               return {
                 ok: false,
                 msg: join([
                   ...lines(ctx.r),
-                  tx("The attack runs in one direction only, which makes it a contrary. Here the two statements should attack each other.", "Saldırı yalnızca tek yönde ilerliyor, bu da onu bir karşıtlık yapar. Burada iki ifadenin birbirine saldırması gerekiyor."),
+                  tx("The conflict you declared runs in one direction only, which makes it a contrary. Here the two statements should exclude each other.", "Bildirdiğiniz çatışma yalnızca tek yönde işliyor, bu da onu bir karşıtlık yapar. Burada iki ifadenin birbirini dışlaması gerekiyor."),
                 ]),
               };
-            return { ok: false, msg: tx("There is no attack between the two premises yet. Declare a conflict between them.", "İki öncül arasında henüz bir saldırı yok. Aralarında bir çatışma bildirin.") };
+            return {
+              ok: true,
+              msg: join([
+                ...lines(ctx.r),
+                sym ? tx("", "") : tx("Two contraries in opposite directions work like one contradictory declaration.", "Karşıt yönlerde iki karşıtlık, tek bir çelişik bildirimi gibi işler."),
+                claimLine(ctx.r, g),
+                claimLine(ctx.r, i),
+              ]),
+            };
           },
         },
         {
@@ -681,25 +799,35 @@
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const g = w("guilty", ctx.lang),
               al = w("alibi", ctx.lang);
-            const back = ctx.r.attacks.some((a) => ctx.r.arguments[a.attacker].conclusion === g && ctx.r.arguments[witnessOf(ctx.r, a)].conclusion === al);
+            const cs = ctx.decls.contraries || [];
+            const forward = cs.find((x) => !x.symmetric && x.source === al && x.target === g);
+            const backward = cs.find((x) => (x.symmetric && [x.source, x.target].includes(al) && [x.source, x.target].includes(g)) || (x.source === g && x.target === al));
             const base = [...lines(ctx.r), claimLine(ctx.r, g)];
-            if (back)
+            if (backward)
               return {
                 ok: false,
                 msg: join([
                   ...base,
-                  tx(`${q(g)} also attacks ${q(al)}, so the conflict runs both ways. Make it one-way.`, `${q(g)} da ${q(al)} öncülüne saldırıyor, yani çatışma iki yönlü. Onu tek yönlü yapın.`),
+                  tx(`Your declaration also lets ${q(g)} attack ${q(al)}, so the conflict runs both ways. Make it one-way.`, `Bildiriminiz ${q(g)} iddiasının da ${q(al)} öncülüne saldırmasına izin veriyor, yani çatışma iki yönlü. Onu tek yönlü yapın.`),
                 ]),
               };
-            return { ok: statusOf(ctx.r, g) === "OVERRULED", msg: join(base) };
+            if (!forward)
+              return {
+                ok: false,
+                msg: join([
+                  ...base,
+                  tx(`Declare a one-way conflict from ${q(al)} to ${q(g)}: [contrary: … ^ …].`, `${q(al)} ifadesinden ${q(g)} ifadesine tek yönlü bir çatışma bildirin: [karşıt: … ^ …].`),
+                ]),
+              };
+            return { ok: statusOf(ctx.r, g) === "OVERRULED", msg: join([...base, claimReason(ctx.r, g)]) };
           },
         },
         {
           id: "conflicts-3",
           kind: "predict",
           task: tx(
-            "Now the evidence that the suspect was seen at the scene is preferred to the alibi. Does this preference change the result? Is {guilty} still overruled?",
-            "Şimdi şüphelinin olay yerinde görüldüğüne dair kanıt, tanık ifadesine tercih ediliyor. Bu tercih sonucu değiştirir mi? {guilty} hâlâ reddedilmiş mi?",
+            "Now the evidence that the suspect was seen at the scene is preferred to the alibi. What is the status of {guilty} now?",
+            "Şimdi şüphelinin olay yerinde görüldüğüne dair kanıt, tanık ifadesine tercih ediliyor. {guilty} iddiasının durumu şimdi nedir?",
           ),
           given: "[<premise>: {alibi}]\n[<premise>: {seen}]\n[<defeasible> r1: {seen} => {guilty}]\n[<contrary>: {alibi} ^ {guilty}]\n[<prefer_premise>: {seen} > {alibi}]",
           choices: ["OVERRULED", "JUSTIFIED", "UNDECIDED"],
@@ -721,8 +849,8 @@
       id: "semantics",
       title: tx("Semantics", "Semantikler"),
       intro: tx(
-        "A semantics decides which sets of arguments can be accepted together. These sets are called extensions. Grounded semantics is cautious and always gives exactly one extension. Preferred semantics looks for the largest sets that can defend themselves, so there may be several. Stable semantics asks an extension to defeat every argument outside it, and sometimes no such set exists. A claim is justified if every extension supports it, and defensible if only some do.",
-        "Semantik, hangi argüman kümelerinin birlikte kabul edilebileceğini belirler. Bu kümelere kapsam denir. Temelli semantik temkinlidir ve her zaman tek bir kapsam verir. Tercih edilen semantik, kendini savunabilen en büyük kümeleri arar, bu yüzden birden fazla kapsam çıkabilir. Kararlı semantik ise bir kapsamın, dışında kalan her argümanı yenmesini ister. Bazen böyle bir küme hiç bulunmaz. Bir iddia her kapsamda destekleniyorsa gerekçelendirilmiştir. Yalnızca bazı kapsamlarda destekleniyorsa savunulabilirdir.",
+        "A semantics decides which sets of arguments can be accepted together. These sets are called extensions. Grounded semantics is cautious and always gives exactly one extension. Preferred semantics selects sets that contain no conflict, defend their members, and cannot be extended with further arguments while keeping these properties. There may be several. Stable semantics asks for a conflict-free set that defeats every argument outside it, and sometimes no such set exists. When there is at least one extension, a claim is justified if every extension contains an argument for it, defensible if only some do, and overruled if in every extension every argument for it is defeated. When there is no extension at all, claims get no status.",
+        "Semantik, hangi argüman kümelerinin birlikte kabul edilebileceğini belirler. Bu kümelere kapsam denir. Temelli semantik temkinlidir ve her zaman tek bir kapsam verir. Tercih edilen semantik, kendi içinde çatışma içermeyen, üyelerini savunan ve bu özellikler korunarak daha fazla argüman eklenemeyen kümeleri seçer. Bu yüzden birden fazla kapsam çıkabilir. Kararlı semantik ise çatışmasız olan ve dışında kalan her argümanı yenen bir küme ister. Bazen böyle bir küme hiç bulunmaz. En az bir kapsam varsa, her kapsam iddia için bir argüman içerdiğinde iddia gerekçelendirilmiştir. Yalnızca bazı kapsamlar içeriyorsa savunulabilirdir. Her kapsamda iddia için kurulan her argüman yeniliyorsa reddedilmiştir. Hiç kapsam yoksa iddiaların durumu belirlenmez.",
       ),
       exercises: [
         {
@@ -777,20 +905,35 @@
           solution: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]",
           wrong: ["[<premise>: a]\n[<premise>: b]\n[<contrary>: a ^ b]\n[<contrary>: b ^ a]", "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]"],
           check(ctx) {
+            const three = ["a", "b", "c"];
+            const prem = (ctx.decls.facts || []).filter((f) => f.kind === "premise").map((f) => f.literal);
+            if (!hasAll(prem, three))
+              return { ok: false, msg: tx("Use the three premises “a”, “b” and “c”.", "“a”, “b” ve “c” adındaki üç öncülü kullanın.") };
+            const edges = (ctx.decls.contraries || []).filter((x) => !x.symmetric && three.includes(x.source) && three.includes(x.target));
+            const has = (x, y) => edges.some((e) => e.source === x && e.target === y);
+            const cycle = (has("a", "b") && has("b", "c") && has("c", "a")) || (has("a", "c") && has("c", "b") && has("b", "a"));
+            if (!cycle)
+              return {
+                ok: false,
+                msg: tx(
+                  "The one-way conflicts between “a”, “b” and “c” should form a circle, for example “a” attacks “b”, “b” attacks “c” and “c” attacks “a”.",
+                  "“a”, “b” ve “c” arasındaki tek yönlü çatışmalar bir daire oluşturmalı. Örneğin “a” “b”ye, “b” “c”ye, “c” de “a”ya saldırsın.",
+                ),
+              };
             const n = ctx.r.extensions.length;
             if (n === 0)
               return {
                 ok: true,
                 msg: tx(
-                  "The defeats form a cycle with an odd number of links. A set that defeats every argument outside it would have to contain some argument together with the argument that defeats it. Such a set cannot exist, so stable semantics has no extension.",
-                  "Yenilgiler, tek sayıda halkadan oluşan bir döngü oluşturuyor. Dışındaki her argümanı yenen bir küme, bir argümanı onu yenen argümanla birlikte içermek zorunda kalırdı. Böyle bir küme olamayacağı için kararlı semantiğin kapsamı yok.",
+                  "The three successful attacks form a cycle of odd length. A stable extension must be conflict-free and must attack every argument outside it. In an odd cycle no conflict-free set can do that, so stable semantics has no extension. (The set of all arguments does attack everything outside it, trivially, but it is not conflict-free.)",
+                  "Üç başarılı saldırı tek uzunlukta bir döngü oluşturuyor. Kararlı bir kapsam hem çatışmasız olmalı hem de dışında kalan her argümana saldırmalıdır. Tek uzunluktaki bir döngüde hiçbir çatışmasız küme bunu yapamaz, bu yüzden kararlı semantiğin kapsamı yok. (Bütün argümanlardan oluşan küme dışındaki her şeye saldırır, çünkü dışında hiçbir şey kalmaz, ama çatışmasız değildir.)",
                 ),
               };
             return {
               ok: false,
               msg: tx(
-                `Stable semantics still has ${n} extension(s). The defeats between the three premises should form a circle, each running in one direction.`,
-                `Kararlı semantiğin hâlâ ${n} kapsamı var. Üç öncül arasındaki yenilgiler, her biri tek yönlü olacak şekilde bir daire oluşturmalı.`,
+                `There is a cycle, but stable semantics still has ${n} extension(s). Check that the attacks in the cycle succeed and that nothing else breaks it.`,
+                `Döngü var, ama kararlı semantiğin hâlâ ${n} kapsamı var. Döngüdeki saldırıların başarılı olduğunu ve döngüyü bozan başka bir şey olmadığını kontrol edin.`,
               ),
             };
           },
@@ -801,8 +944,8 @@
       id: "orderings",
       title: tx("Last link and weakest link", "Son halka ve en zayıf halka"),
       intro: tx(
-        "When the outcome of an attack depends on preferences, the two arguments have to be compared. Last link looks only at the final step of each argument, its last defeasible rule. Weakest link looks at all of an argument's defeasible rules, and at its premises too when it has any. In this view an argument is only as strong as its weakest step.",
-        "Bir saldırının sonucu tercihlere bağlıysa iki argümanın karşılaştırılması gerekir. Son halka yalnızca her argümanın son adımına, yani son feshedilebilir kuralına bakar. En zayıf halka ise argümanın bütün feshedilebilir kurallarına bakar, öncülü olan argümanlarda öncüllere de. Bu yaklaşıma göre bir argüman en zayıf adımı kadar güçlüdür.",
+        "When the outcome of an attack depends on preferences, the two arguments have to be compared. Last link compares their last defeasible rules. Usually that is the rule used in the final step. If the final step is a strict rule, the last defeasible rules are those found just below it, and there can be several. If neither argument uses a defeasible rule, their ordinary premises are compared instead. Weakest link looks at all of an argument's defeasible rules, and at its premises too when it has any. In this view an argument is only as strong as its weakest step.",
+        "Bir saldırının sonucu tercihlere bağlıysa iki argümanın karşılaştırılması gerekir. Son halka, iki argümanın son feshedilebilir kurallarını karşılaştırır. Bu çoğu zaman son adımda kullanılan kuraldır. Son adım katı bir kuralsa, onun hemen altındaki son feshedilebilir kurallar dikkate alınır ve bunlar birden fazla olabilir. İki argüman da feshedilebilir kural kullanmıyorsa bunun yerine sıradan öncülleri karşılaştırılır. En zayıf halka ise argümanın bütün feshedilebilir kurallarına bakar, öncülü olan argümanlarda öncüllere de. Bu yaklaşıma göre bir argüman en zayıf adımı kadar güçlüdür.",
       ),
       exercises: [
         {
@@ -858,6 +1001,19 @@
           check(ctx) {
             if (!sameExceptPreferences(ctx))
               return { ok: false, msg: tx("Change only the preferences. The axiom and the rules should stay as they are.", "Yalnızca tercihleri değiştirin. Aksiyom ve kurallar olduğu gibi kalmalı.") };
+            const key = (x) => x.stronger + ">" + x.weaker;
+            const before = (ctx.givenDecls.rulePrefs || []).map(key),
+              after = (ctx.decls.rulePrefs || []).map(key);
+            const removed = before.filter((x) => !after.includes(x)).length,
+              addedN = after.filter((x) => !before.includes(x)).length;
+            if (removed !== 1 || addedN !== 1 || (ctx.decls.premisePrefs || []).length)
+              return {
+                ok: false,
+                msg: tx(
+                  `Change exactly one preference: remove one of the given preferences and write one new one. You removed ${removed} and added ${addedN}.`,
+                  `Tam olarak bir tercihi değiştirin: verilen tercihlerden birini silip yerine yeni bir tercih yazın. Siz ${removed} tercih silip ${addedN} tercih eklediniz.`,
+                ),
+              };
             return { ok: statusOf(ctx.r, "p") === "JUSTIFIED", msg: join([...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, "p")]) };
           },
         },
@@ -865,18 +1021,18 @@
     },
     {
       id: "sets",
-      title: tx("Elitist and democratic comparison", "Elitist ve demokratik karşılaştırma"),
+      title: tx("Elitist and democratic set ordering", "Elitist ve demokratik küme sıralaması"),
       intro: tx(
-        "Weakest link compares sets of rules, and there are two ways to say that one set is weaker than another. With elitist comparison, a set X is weaker if one of its members is weaker than every member of Y. With democratic comparison, every member of X has to be weaker than at least one member of Y. The theories below use axioms, so only the rules are compared.",
-        "En zayıf halka kural kümelerini karşılaştırır. Bir kümenin diğerinden zayıf olduğunu söylemenin iki yolu vardır. Elitist karşılaştırmada X kümesinin bir üyesi Y'nin bütün üyelerinden zayıfsa X daha zayıftır. Demokratik karşılaştırmada ise X'in her üyesi Y'nin en az bir üyesinden zayıf olmalıdır. Aşağıdaki kuramlarda aksiyom kullanıldığı için yalnızca kurallar karşılaştırılır.",
+        "Weakest link compares sets of rules, and the set ordering decides when one set is weaker than another. There are two options. With the elitist set ordering, a set X is weaker if one of its members is weaker than every member of Y. With the democratic set ordering, every member of X has to be weaker than at least one member of Y. The theories below use axioms, so only the rules are compared.",
+        "En zayıf halka kural kümelerini karşılaştırır. Bir kümenin diğerinden ne zaman zayıf sayılacağını küme sıralaması belirler ve iki seçenek vardır. Elitist küme sıralamasında X kümesinin bir üyesi Y'nin bütün üyelerinden zayıfsa X daha zayıftır. Demokratik küme sıralamasında ise X'in her üyesi Y'nin en az bir üyesinden zayıf olmalıdır. Aşağıdaki kuramlarda aksiyom kullanıldığı için yalnızca kurallar karşılaştırılır.",
       ),
       exercises: [
         {
           id: "sets-1",
           kind: "predict",
           task: tx(
-            "“p” is reached with the rules r1 and r2, and “-p” with the rule r3. The rule r3 is stronger than r1, and r2 is stronger than r3. Under weakest link with elitist comparison, which claim is justified?",
-            "“p” iddiası r1 ve r2 kurallarıyla, “-p” iddiası ise r3 kuralıyla elde ediliyor. r3 kuralı r1'den, r2 kuralı da r3'ten güçlü. En zayıf halka ve elitist karşılaştırmaya göre hangi iddia gerekçelendirilmiştir?",
+            "“p” is reached with the rules r1 and r2, and “-p” with the rule r3. The rule r3 is stronger than r1, and r2 is stronger than r3. Under weakest link with the elitist set ordering, which claim is justified?",
+            "“p” iddiası r1 ve r2 kurallarıyla, “-p” iddiası ise r3 kuralıyla elde ediliyor. r3 kuralı r1'den, r2 kuralı da r3'ten güçlü. En zayıf halka ve elitist küme sıralamasına göre hangi iddia gerekçelendirilmiştir?",
           ),
           settings: { ordering: "weakest_link", setOrdering: "elitist" },
           given: "[<axiom>: a]\n[<axiom>: c]\n[<defeasible> r1: a => b]\n[<defeasible> r2: b => p]\n[<defeasible> r3: c => -p]\n[<prefer_rule>: r3 > r1]\n[<prefer_rule>: r2 > r3]",
@@ -885,15 +1041,15 @@
           answer: (ctx) => pick(ctx.r),
           explain() {
             return tx(
-              "With elitist comparison it is enough that r1 is weaker than r3, the only rule of “-p”. So {r1, r2} counts as weaker than {r3}, and “p” loses. In the end “-p” is justified.",
-              "Elitist karşılaştırmada r1'in, “-p” argümanının tek kuralı olan r3'ten zayıf olması yeterlidir. Bu yüzden {r1, r2} kümesi {r3} kümesinden zayıf sayılır ve “p” kaybeder. Sonuçta “-p” gerekçelendirilir.",
+              "With the elitist set ordering it is enough that r1 is weaker than r3, the only rule of “-p”. So {r1, r2} counts as weaker than {r3}, and “p” loses. In the end “-p” is justified.",
+              "Elitist küme sıralamasında r1'in, “-p” argümanının tek kuralı olan r3'ten zayıf olması yeterlidir. Bu yüzden {r1, r2} kümesi {r3} kümesinden zayıf sayılır ve “p” kaybeder. Sonuçta “-p” gerekçelendirilir.",
             );
           },
         },
         {
           id: "sets-2",
           kind: "predict",
-          task: tx("The same theory, this time with democratic comparison. Which claim is justified now?", "Aynı kuram, bu kez demokratik karşılaştırmayla. Şimdi hangi iddia gerekçelendirilmiştir?"),
+          task: tx("The same theory, this time with the democratic set ordering. Which claim is justified now?", "Aynı kuram, bu kez demokratik küme sıralamasıyla. Şimdi hangi iddia gerekçelendirilmiştir?"),
           settings: { ordering: "weakest_link", setOrdering: "democratic" },
           given: "[<axiom>: a]\n[<axiom>: c]\n[<defeasible> r1: a => b]\n[<defeasible> r2: b => p]\n[<defeasible> r3: c => -p]\n[<prefer_rule>: r3 > r1]\n[<prefer_rule>: r2 > r3]",
           choices: PCHOICES,
@@ -901,8 +1057,8 @@
           answer: (ctx) => pick(ctx.r),
           explain() {
             return tx(
-              "With democratic comparison, r2 is not weaker than r3, so {r1, r2} does not count as weaker. On the other hand r3 is weaker than r2, so {r3} counts as weaker than {r1, r2}. This time “-p” loses and “p” is justified. The same preferences gave the opposite result.",
-              "Demokratik karşılaştırmada r2, r3'ten zayıf olmadığı için {r1, r2} kümesi zayıf sayılmaz. Buna karşılık r3, r2'den zayıftır ve {r3} kümesi {r1, r2} kümesinden zayıf sayılır. Bu kez “-p” kaybeder ve “p” gerekçelendirilir. Aynı tercihler tam tersi bir sonuç verdi.",
+              "With the democratic set ordering, r2 is not weaker than r3, so {r1, r2} does not count as weaker. On the other hand r3 is weaker than r2, so {r3} counts as weaker than {r1, r2}. This time “-p” loses and “p” is justified. The same preferences gave the opposite result.",
+              "Demokratik küme sıralamasında r2, r3'ten zayıf olmadığı için {r1, r2} kümesi zayıf sayılmaz. Buna karşılık r3, r2'den zayıftır ve {r3} kümesi {r1, r2} kümesinden zayıf sayılır. Bu kez “-p” kaybeder ve “p” gerekçelendirilir. Aynı tercihler tam tersi bir sonuç verdi.",
             );
           },
         },
@@ -933,15 +1089,20 @@
           check(ctx) {
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const c = w("cancelled", ctx.lang);
-            const base = [...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, c)];
+            if (factsAbout(ctx, c).length)
+              return {
+                ok: false,
+                msg: tx(
+                  `Do not simply declare ${q(c)} or its negation. The task is to attack the argument that leads to it.`,
+                  `${q(c)} ifadesini ya da değilini doğrudan bildirmeyin. Görev, bu sonuca götüren argümana saldırmak.`,
+                ),
+              };
+            const base = [...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, c), claimReason(ctx.r, c)];
             if (statusOf(ctx.r, c) === "OVERRULED") return { ok: true, msg: join(base) };
             if (statusOf(ctx.r, c) === "UNDECIDED")
               return {
                 ok: false,
-                msg: join([
-                  ...base,
-                  tx("Close. The picnic is now contested, but not overruled. Your attack has to win, not just draw.", "Yaklaştınız. Piknik artık tartışmalı hâle geldi, ama reddedilmedi. Saldırınızın berabere kalması değil, kazanması gerekiyor."),
-                ]),
+                msg: join([...base, tx("Close. The picnic is now contested, but not overruled. Your attack has to win, not just draw.", "Yaklaştınız. Piknik artık tartışmalı hâle geldi, ama reddedilmedi. Saldırınızın berabere kalması değil, kazanması gerekiyor.")]),
               };
             return { ok: false, msg: join(base) };
           },
@@ -963,19 +1124,29 @@
           check(ctx) {
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const c = w("flies", ctx.lang);
-            const base = [...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, c)];
-            if (statusOf(ctx.r, c) === "JUSTIFIED")
+            if (factsAbout(ctx, c).length)
               return {
-                ok: true,
-                msg: join([
-                  ...base,
-                  tx(
-                    `The argument against ${q(c)} is defeated, so the argument for ${q(c)} is defended again. This is called reinstatement.`,
-                    `${q(c)} iddiasına karşı olan argüman yenildiği için ${q(c)} argümanı yeniden savunuluyor. Buna yeniden kazanım denir.`,
-                  ),
-                ]),
+                ok: false,
+                msg: tx(
+                  `Do not simply declare ${q(c)} or its negation. The task is to deal with the argument against it.`,
+                  `${q(c)} ifadesini ya da değilini doğrudan bildirmeyin. Görev, ona karşı olan argümanla başa çıkmak.`,
+                ),
               };
-            return { ok: false, msg: join(base) };
+            const base = [...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, c)];
+            if (statusOf(ctx.r, c) !== "JUSTIFIED") return { ok: false, msg: join([...base, claimReason(ctx.r, c)]) };
+            const orig = argsWithRule(ctx.r, "r1").find((i) => label(ctx.r, i) === "IN");
+            const defeaters = orig === undefined ? [] : ctx.r.attackers[orig];
+            const reinstated = orig !== undefined && defeaters.length && defeaters.every((d) => label(ctx.r, d) === "OUT");
+            const ds = defeaters.map((d) => ctx.r.arguments[d].alias).join(", "),
+              A = orig === undefined ? "" : ctx.r.arguments[orig].alias,
+              one = defeaters.length === 1;
+            const note = reinstated
+              ? tx(
+                  `The argument ${A} for ${q(c)} is still defeated by ${ds}, but ${one ? "that argument is" : "each of those is"} itself defeated by an accepted argument, so ${A} is defended again. This is called reinstatement.`,
+                  `${q(c)} için kurulan ${A} argümanı hâlâ ${ds} tarafından yeniliyor. Ama ${one ? "bu argüman da" : "bunların her biri de"} kabul edilmiş bir argüman tarafından yenildiği için ${A} yeniden savunuluyor. Buna yeniden kazanım denir.`,
+                )
+              : claimReason(ctx.r, c);
+            return { ok: true, msg: join([...base, note]) };
           },
         },
       ],
@@ -984,8 +1155,8 @@
       id: "consistency",
       title: tx("Consistency and contrapositives", "Tutarlılık ve ters yönlü hâller"),
       intro: tx(
-        "Strict rules work in both directions: if p -> q holds and q is false, then p must be false as well. ASPIC+ guarantees consistent results only when the strict rules are closed under contrapositives, and ArgForge can add these for you. Without them, a theory may accept both a statement and its negation.",
-        "Katı kuralların sonuçları iki yönde işler. p -> q doğruysa ve q yanlışsa p de yanlış olmalıdır. ASPIC+, sonuçların tutarlı olmasını ancak katı kurallar ters yönlü hâllerine göre kapalıysa güvence altına alır. ArgForge bu hâlleri sizin yerinize ekleyebilir. Eklenmezlerse bir kuram hem bir ifadeyi hem de onun değilini kabul edebilir.",
+        "A strict rule p -> q has a contrapositive, -q -> -p: if q is false, p must be false as well. This is not the converse q -> p, which does not follow. Adding the contrapositives of strict rules is one of the conditions under which ASPIC+ guarantees consistent and closed results. Other conditions matter too, for example the axioms must be consistent, so contrapositives alone do not guarantee everything. ArgForge can add them for you. Without them, a theory may accept both a statement and its negation.",
+        "p -> q katı kuralının ters yönlü hâli -q -> -p kuralıdır: q yanlışsa p de yanlış olmalıdır. Bu, q -> p biçimindeki tersine çevrilmiş kural değildir ve o kural buradan çıkmaz. Katı kuralların ters yönlü hâllerinin eklenmesi, ASPIC+'ın tutarlı ve kapalı sonuçları güvence altına aldığı koşullardan biridir. Başka koşullar da önemlidir, örneğin aksiyomlar birbiriyle tutarlı olmalıdır. Bu yüzden ters yönlü hâller tek başına her şeyi güvence altına almaz. ArgForge bu hâlleri sizin yerinize ekleyebilir. Eklenmezlerse bir kuram hem bir ifadeyi hem de onun değilini kabul edebilir.",
       ),
       exercises: [
         {
@@ -997,15 +1168,15 @@
           ),
           given: "[<premise>: p]\n[<premise>: -q]\n[<strict> s1: p -> q]\n[<prefer_premise>: -q > p]",
           choices: QCHOICES,
-          hint: tx("Can “-q” attack “q”, which is a strict conclusion? Can the argument for “q” defeat the premise “-q”?", "“-q”, katı bir sonuç olan “q” iddiasına saldırabilir mi? “q” argümanı “-q” öncülünü yenebilir mi?"),
+          hint: tx("Can “-q” rebut “q”, which is reached by a strict rule? Is there anything that attacks the premise “p”? Can the argument for “q” defeat the premise “-q”?", "“-q”, katı bir kuralla elde edilen “q” sonucuna doğrudan saldırabilir mi? “p” öncülüne saldıran bir şey var mı? “q” argümanı “-q” öncülünü yenebilir mi?"),
           answer: (ctx) => pq(ctx.r),
           explain(ctx) {
             return join([
               ...lines(ctx.r),
               ...failures(ctx.r),
               tx(
-                "A strict conclusion cannot be attacked, so “-q” cannot touch “q”. The attack of “q” on the premise “-q” fails as well, because “-q” is preferred. Both survive, and the result is inconsistent.",
-                "Katı bir sonuca saldırılamadığı için “-q”, “q” iddiasına dokunamaz. “q” argümanının “-q” öncülüne saldırısı da “-q” tercih edildiği için başarısız olur. İkisi de ayakta kalır ve sonuç tutarsız olur.",
+                "The strict conclusion “q” cannot be rebutted directly. The argument for it could still be attacked through its premise “p”, but nothing in this theory argues against “p”. The attack of “q” on the premise “-q” fails as well, because “-q” is preferred. Both survive, and the result is inconsistent.",
+                "Katı kuralla elde edilen “q” sonucuna doğrudan saldırılamaz. Bu argümana “p” öncülü üzerinden saldırılabilirdi, ama bu kuramda “p” öncülüne karşı bir argüman yok. “q” argümanının “-q” öncülüne saldırısı da “-q” tercih edildiği için başarısız olur. İkisi de ayakta kalır ve sonuç tutarsız olur.",
               ),
             ]);
           },
@@ -1028,7 +1199,541 @@
         },
       ],
     },
+    {
+      id: "schemes",
+      title: tx("Argument schemes and critical questions", "Argüman şemaları ve kritik sorular"),
+      intro: tx(
+        "Everyday arguments follow recurring patterns called argument schemes. A well-known one is the argument from expert opinion: E is an expert in a field, E says that A, A belongs to that field, so presumably A. Each scheme comes with critical questions that point out how such an argument can go wrong. In ASPIC+ a scheme becomes a defeasible rule, and each critical question becomes one of the three kinds of attack: questioning a premise undermines, pointing to an exception undercuts, and a counter-argument rebuts.",
+        "Gündelik argümanlar, argüman şeması denen tekrar eden kalıplara uyar. Bilinen örneklerden biri uzman görüşüne dayalı argümandır: E bir alanda uzmandır, E A'nın doğru olduğunu söylüyor, A o alana girer, o hâlde muhtemelen A. Her şemanın, böyle bir argümanın nerede yanılabileceğini gösteren kritik soruları vardır. ASPIC+'ta bir şema feshedilebilir bir kurala dönüşür. Her kritik soru da üç saldırı türünden birine karşılık gelir. Bir öncülü sorgulamak öncüle saldırıdır, bir istisnayı göstermek kurala saldırıdır, karşı bir argüman ise sonuca saldırıdır.",
+      ),
+      exercises: [
+        {
+          id: "schemes-1",
+          kind: "build",
+          task: tx(
+            "Critical question: is Ayşe really an expert on medicines? Suppose a reliable record shows she is not. Add an argument that questions this premise, so that {safe} is no longer justified.",
+            "Kritik soru: Ayşe gerçekten ilaç uzmanı mı? Güvenilir bir kaydın onun uzman olmadığını gösterdiğini varsayalım. Bu öncülü sorgulayan bir argüman ekleyin. Böylece {safe} artık gerekçelendirilmiş olmasın.",
+          ),
+          given: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]",
+          hint: tx("You need an argument whose conclusion is -{expA}.", "Sonucu -{expA} olan bir argümana ihtiyacınız var."),
+          solution: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: -{expA}]",
+          wrong: [
+            "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: -{safe}]",
+            "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {paid}]\n[<defeasible> r9: {paid} => -<rexpert>]",
+          ],
+          alternatives: [{ src: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<axiom>: -{expA}]", mustNot: ["attacks back successfully", "başarılı bir karşılık"] }],
+          check(ctx) {
+            if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
+            const e = w("expA", ctx.lang),
+              c = w("safe", ctx.lang);
+            const on = ctx.r.attacks.filter((a) => a.kind === "undermine" && ctx.r.arguments[witnessOf(ctx.r, a)].conclusion === e);
+            const win = on.find((a) => a.succeeds);
+            if (!on.length) {
+              const other = ctx.r.attacks.find((a) => !ctx.r.arguments[a.attacker].conclusion.startsWith(ctx.r.arguments[a.target].conclusion));
+              return {
+                ok: false,
+                msg: join([
+                  ...lines(ctx.r),
+                  tx(
+                    `This critical question asks whether the premise ${q(e)} is true. Answer it with an argument for ${q(neg(e))}, which attacks that premise.`,
+                    `Bu kritik soru ${q(e)} öncülünün doğru olup olmadığını soruyor. Ona, bu öncüle saldıran ${q(neg(e))} için bir argümanla cevap verin.`,
+                  ),
+                ]),
+              };
+            }
+            if (!win) return { ok: false, msg: join([attackLine(ctx.r, on[0]), whyFailed(ctx.r, on[0]), claimLine(ctx.r, c)]) };
+            const back = ctx.r.attacks.filter((a) => a.attacker === witnessOf(ctx.r, win) && a.target === win.attacker);
+            return {
+              ok: statusOf(ctx.r, c) !== "JUSTIFIED",
+              msg: join([
+                attackLine(ctx.r, win),
+                ...back.map((a) => attackLine(ctx.r, a)),
+                back.some((a) => a.succeeds)
+                  ? tx(`The premise ${q(e)} attacks back successfully, so neither side is accepted.`, `${q(e)} öncülü de başarılı bir karşılık veriyor, bu yüzden iki taraf da kabul edilmiyor.`)
+                  : tx(`The premise ${q(e)} cannot answer this attack, so it is defeated.`, `${q(e)} öncülü bu saldırıya karşılık veremiyor, bu yüzden yeniliyor.`),
+                claimLine(ctx.r, c),
+                tx("Questioning a premise of the scheme is an undermining attack.", "Şemanın bir öncülünü sorgulamak, öncüle saldırıdır."),
+              ]),
+            };
+          },
+        },
+        {
+          id: "schemes-2",
+          kind: "build",
+          task: tx(
+            "Critical question: is Ayşe biased? It turns out she is paid by the manufacturer. That does not show the drug is unsafe. It only means her opinion should not be relied on here. Add a premise and a rule that say exactly this, so that {safe} is overruled.",
+            "Kritik soru: Ayşe taraflı mı? Üreticiden para aldığı ortaya çıkıyor. Bu, ilacın güvenli olmadığını göstermez. Yalnızca onun görüşüne burada güvenilmemesi gerektiği anlamına gelir. Tam olarak bunu söyleyen bir öncül ve bir kural ekleyin. Böylece {safe} reddedilmiş olsun.",
+          ),
+          given: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]",
+          hint: tx("The rule should conclude that the scheme rule <rexpert> does not apply: -<rexpert>.", "Kural, şema kuralı olan <rexpert> kuralının geçerli olmadığı sonucuna varmalı: -<rexpert>."),
+          solution: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {paid}]\n[<defeasible> <rbias>: {paid} => -<rexpert>]",
+          wrong: [
+            "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {paid}]\n[<defeasible> <rbias>: {paid} => -{safe}]",
+            "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: -<rexpert>]",
+          ],
+          check(ctx) {
+            if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
+            const c = w("safe", ctx.lang),
+              pd = w("paid", ctx.lang),
+              rn = k("rexpert", ctx.lang);
+            if ((ctx.decls.facts || []).some((f) => f.literal === "-" + rn))
+              return { ok: false, msg: tx(`That declares -${rn} directly. Write a rule that derives it from ${q(pd)}.`, `Bu, -${rn} ifadesini doğrudan bildiriyor. Onu ${q(pd)} ifadesinden türeten bir kural yazın.`) };
+            const rules = newRules(ctx).filter((x) => x.consequent === "-" + rn && x.antecedents.includes(pd));
+            if (!rules.length) {
+              const rebut = ctx.r.attacks.find((a) => a.kind === "rebut");
+              return {
+                ok: false,
+                msg: join([
+                  ...(rebut ? [attackLine(ctx.r, rebut)] : []),
+                  tx(
+                    `Bias does not show that the drug is unsafe, so arguing for ${q(neg(c))} says too much. Write a rule from ${q(pd)} to -${rn}, which says that the expert rule does not apply here.`,
+                    `Taraflılık ilacın güvenli olmadığını göstermez, bu yüzden ${q(neg(c))} için argüman kurmak fazlasını söyler. ${q(pd)} ifadesinden -${rn} sonucuna giden bir kural yazın. Bu kural, uzman kuralının burada geçerli olmadığını söyler.`,
+                  ),
+                ]),
+              };
+            }
+            const cut = ctx.r.attacks.find((a) => a.kind === "undercut" && rules.some((x) => x.name === ctx.r.arguments[a.attacker].rule));
+            if (!cut) return { ok: false, msg: tx(`Your rule never applies. Is ${q(pd)} declared as a premise?`, `Kuralınız hiç uygulanmıyor. ${q(pd)} bir öncül olarak bildirildi mi?`) };
+            return {
+              ok: cut.succeeds && statusOf(ctx.r, c) === "OVERRULED",
+              msg: join([
+                attackLine(ctx.r, cut),
+                claimLine(ctx.r, c),
+                claimReason(ctx.r, c),
+                tx("Pointing to an exception to the scheme is an undercut. It does not claim the opposite conclusion.", "Şemaya bir istisna göstermek kurala saldırıdır. Karşıt sonucu ileri sürmez."),
+              ]),
+            };
+          },
+        },
+        {
+          id: "schemes-3",
+          kind: "build",
+          task: tx(
+            "Critical question: do other experts agree? Mehmet, also an expert on medicines, says the drug is not safe. Apply the same scheme to Mehmet with a new rule, so that his argument rebuts Ayşe's. Without a preference, the question should remain open.",
+            "Kritik soru: başka uzmanlar da aynı fikirde mi? Yine ilaç uzmanı olan Mehmet, ilacın güvenli olmadığını söylüyor. Aynı şemayı yeni bir kuralla Mehmet'e uygulayın. Böylece onun argümanı Ayşe'nin argümanının sonucuna saldırsın. Bir tercih olmadığı için soru açık kalmalı.",
+          ),
+          given: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {expM}]\n[<premise>: {saysM}]",
+          hint: tx("Copy the pattern of <rexpert>: two conditions about Mehmet, and the conclusion -{safe}.", "<rexpert> kuralının kalıbını kopyalayın: Mehmet hakkında iki koşul ve -{safe} sonucu."),
+          solution: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {expM}]\n[<premise>: {saysM}]\n[<defeasible> <rexpert2>: {expM} & {saysM} => -{safe}]",
+          wrong: [
+            "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {expM}]\n[<premise>: {saysM}]\n[<premise>: -{safe}]",
+            "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {expM}]\n[<premise>: {saysM}]\n[<defeasible> <rexpert2>: {saysM} => -{safe}]",
+          ],
+          check(ctx) {
+            if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
+            const c = w("safe", ctx.lang);
+            const need = [w("expM", ctx.lang), w("saysM", ctx.lang)];
+            const rules = newRules(ctx).filter((x) => x.kind === "defeasible" && x.consequent === neg(c) && hasAll(x.antecedents, need));
+            if (!rules.length)
+              return {
+                ok: false,
+                msg: tx(
+                  `Apply the scheme to Mehmet: a defeasible rule whose conditions are ${q(need[0])} and ${q(need[1])}, and whose conclusion is ${q(neg(c))}.`,
+                  `Şemayı Mehmet'e uygulayın: koşulları ${q(need[0])} ve ${q(need[1])}, sonucu ${q(neg(c))} olan feshedilebilir bir kural yazın.`,
+                ),
+              };
+            const att = ctx.r.attacks.find((a) => a.kind === "rebut" && rules.some((x) => x.name === ctx.r.arguments[a.attacker].rule));
+            if (!att) return { ok: false, msg: join([claimLine(ctx.r, c)]) };
+            const ok = statusOf(ctx.r, c) === "UNDECIDED";
+            return {
+              ok,
+              msg: join([
+                ...lines(ctx.r),
+                claimLine(ctx.r, c),
+                ok
+                  ? tx("Two experts disagree and nothing decides between them, so the claim stays undecided. A counter-argument to the conclusion is a rebuttal.", "İki uzman farklı görüşte ve aralarında karar veren bir şey yok, bu yüzden iddia kararsız kalıyor. Sonuca karşı bir argüman, sonuca saldırıdır.")
+                  : tx("The question was meant to stay open. Did you add a preference?", "Sorunun açık kalması gerekiyordu. Bir tercih mi eklediniz?"),
+              ]),
+            };
+          },
+        },
+        {
+          id: "schemes-4",
+          kind: "predict",
+          task: tx(
+            "In this theory the bias question has been answered with the rule <rbias>. Which kind of attack does the engine find against Ayşe's argument?",
+            "Bu kuramda taraflılık sorusu <rbias> kuralıyla cevaplanmış. Motor, Ayşe'nin argümanına karşı hangi tür saldırıyı buluyor?",
+          ),
+          given: "[<premise>: {expA}]\n[<premise>: {saysA}]\n[<defeasible> <rexpert>: {expA} & {saysA} => {safe}]\n[<premise>: {paid}]\n[<defeasible> <rbias>: {paid} => -<rexpert>]",
+          choices: [
+            { value: "undermine", label: tx("an attack on a premise", "öncüle saldırı") },
+            { value: "undercut", label: tx("an attack on the rule", "kurala saldırı") },
+            { value: "rebut", label: tx("an attack on the conclusion", "sonuca saldırı") },
+          ],
+          hint: tx("What does the conclusion -<rexpert> talk about?", "-<rexpert> sonucu neyden söz ediyor?"),
+          answer: (ctx) => (ctx.r.attacks[0] || {}).kind,
+          explain(ctx) {
+            return join([
+              ...lines(ctx.r),
+              tx(
+                "The conclusion names the scheme rule itself, so the attack targets the rule, not a premise or the conclusion. In general, critical questions about the conditions of the scheme undermine, questions about exceptions undercut, and questions about counter-evidence rebut.",
+                "Sonuç, şema kuralının adını taşıyor. Bu yüzden saldırı bir öncüle ya da sonuca değil, kuralın kendisine yöneliyor. Genel olarak şemanın koşullarını sorgulayan kritik sorular öncüle, istisnaları soranlar kurala, karşı kanıtı soranlar ise sonuca saldırır.",
+              ),
+            ]);
+          },
+        },
+      ],
+    },
+    {
+      id: "modelling",
+      title: tx("From text to theory", "Metinden kurama"),
+      intro: tx(
+        "Formalising a text is a skill of its own. Read for the claims, the reasons given for them, the exceptions, the conflicts and the priorities, then decide how each becomes a declaration. Use exactly the statements listed in each task, so that the engine can recognise them. Different formalisations can be equally good: the engine checks that yours has the required parts and reaches the right result.",
+        "Bir metni biçimselleştirmek başlı başına bir beceridir. Metindeki iddiaları, bu iddiaların gerekçelerini, istisnaları, çatışmaları ve öncelikleri bulun. Sonra her birinin nasıl bir bildirime dönüşeceğine karar verin. Motorun tanıyabilmesi için her görevde verilen ifadeleri aynen kullanın. Farklı biçimselleştirmeler aynı derecede iyi olabilir. Motor, sizinkinin gerekli parçaları içerip içermediğini ve doğru sonuca varıp varmadığını kontrol eder.",
+      ),
+      exercises: [
+        {
+          id: "modelling-1",
+          kind: "build",
+          task: tx(
+            "Text: “Normally, students who passed the exam get the certificate. Ali passed the exam. However, students who cheated do not get the certificate, and this takes priority. Ali cheated.” Formalise it using the statements {passed}, {cheated} and {cert}. The engine should find that {cert} is overruled.",
+            "Metin: “Normalde sınavı geçen öğrenciler sertifika alır. Ali sınavı geçti. Ancak kopya çeken öğrenciler sertifika alamaz ve bu kural önceliklidir. Ali kopya çekti.” Bu metni {passed}, {cheated} ve {cert} ifadelerini kullanarak biçimselleştirin. Motor, {cert} iddiasının reddedildiği sonucuna varmalı.",
+          ),
+          given: "",
+          hint: tx(
+            "Two facts, a general rule, and an exception that wins. The exception can be a rule for -{cert} with a preference, or a rule that undercuts the general one.",
+            "İki olgu, genel bir kural ve kazanan bir istisna. İstisna, bir tercihle birlikte -{cert} için bir kural olabilir ya da genel kurala saldıran bir kural olabilir.",
+          ),
+          solution: "[<premise>: {passed}]\n[<premise>: {cheated}]\n[<defeasible> r1: {passed} => {cert}]\n[<defeasible> r2: {cheated} => -{cert}]\n[<prefer_rule>: r2 > r1]",
+          wrong: [
+            "[<premise>: {passed}]\n[<premise>: {cheated}]\n[<defeasible> r1: {passed} => {cert}]\n[<defeasible> r2: {cheated} => -{cert}]",
+            "[<premise>: {passed}]\n[<premise>: {cheated}]\n[<premise>: -{cert}]",
+          ],
+          alternatives: [{ src: "[<premise>: {passed}]\n[<premise>: {cheated}]\n[<defeasible> r1: {passed} => {cert}]\n[<defeasible> r2: {cheated} => -r1]" }],
+          check(ctx) {
+            const ps = w("passed", ctx.lang),
+              ch = w("cheated", ctx.lang),
+              c = w("cert", ctx.lang);
+            const facts = (ctx.decls.facts || []).map((f) => f.literal);
+            const problems = [];
+            if (!facts.includes(ps) || !facts.includes(ch))
+              problems.push(tx(`${q(ps)} and ${q(ch)} are facts about Ali. Declare both.`, `${q(ps)} ve ${q(ch)}, Ali hakkındaki olgulardır. İkisini de bildirin.`));
+            if (factsAbout(ctx, c).length)
+              problems.push(tx(`${q(c)} is a conclusion in the text, not a fact. Derive it, or its negation, with rules.`, `${q(c)} metinde bir sonuçtur, olgu değildir. Onu ya da değilini kurallarla türetin.`));
+            const general = (ctx.decls.rules || []).filter((x) => x.kind === "defeasible" && x.consequent === c && x.antecedents.includes(ps));
+            if (!general.length)
+              problems.push(tx(`The text says that passing normally leads to the certificate: a defeasible rule from ${q(ps)} to ${q(c)}.`, `Metne göre sınavı geçmek normalde sertifikaya götürür: ${q(ps)} ifadesinden ${q(c)} ifadesine giden feshedilebilir bir kural.`));
+            const exception = (ctx.decls.rules || []).some(
+              (x) => x.antecedents.includes(ch) && (x.consequent === neg(c) || general.some((g) => x.consequent === "-" + g.name)),
+            );
+            if (!exception)
+              problems.push(tx(`The exception needs a rule from ${q(ch)}, either to ${q(neg(c))} or against the general rule.`, `İstisna için ${q(ch)} ifadesinden çıkan bir kural gerekiyor: ya ${q(neg(c))} sonucuna giden ya da genel kurala saldıran.`));
+            if (problems.length) return { ok: false, msg: join(problems) };
+            const out = statusOf(ctx.r, c) === "OVERRULED";
+            return {
+              ok: out,
+              msg: join([
+                ...lines(ctx.r),
+                ...failures(ctx.r),
+                claimLine(ctx.r, c),
+                out
+                  ? claimReason(ctx.r, c)
+                  : tx("The priority in the text is missing: as it stands, nothing makes the exception win.", "Metindeki öncelik eksik. Şu hâliyle istisnanın kazanmasını sağlayan bir şey yok."),
+              ]),
+            };
+          },
+        },
+        {
+          id: "modelling-2",
+          kind: "build",
+          task: tx(
+            "Text: “Vehicles are not allowed in the park. Every ambulance is a vehicle. An ambulance on duty is allowed in, and this exception takes precedence over the general ban. The ambulance is on duty.” Formalise it using {vehicle}, {amb}, {duty} and {allowed}. The engine should find that {allowed} is justified.",
+            "Metin: “Araçlar parka giremez. Her ambulans bir araçtır. Görevdeki bir ambulans parka girebilir ve bu istisna genel yasağa göre önceliklidir. Ambulans görevde.” Bu metni {vehicle}, {amb}, {duty} ve {allowed} ifadelerini kullanarak biçimselleştirin. Motor, {allowed} iddiasının gerekçelendirildiği sonucuna varmalı.",
+          ),
+          given: "",
+          hint: tx(
+            "“Every ambulance is a vehicle” has no exceptions, so it is a strict rule. The ban and the exception are defeasible, and the exception is preferred. The exception has two conditions, joined with &.",
+            "“Her ambulans bir araçtır” istisnasızdır, yani katı bir kuraldır. Yasak ve istisna feshedilebilir kurallardır ve istisna tercih edilir. İstisnanın iki koşulu vardır, bunlar & ile bağlanır.",
+          ),
+          solution: "[<premise>: {amb}]\n[<premise>: {duty}]\n[<strict> s1: {amb} -> {vehicle}]\n[<defeasible> r1: {vehicle} => -{allowed}]\n[<defeasible> r2: {amb} & {duty} => {allowed}]\n[<prefer_rule>: r2 > r1]",
+          wrong: [
+            "[<premise>: {amb}]\n[<premise>: {duty}]\n[<premise>: {vehicle}]\n[<defeasible> r1: {vehicle} => -{allowed}]\n[<defeasible> r2: {amb} & {duty} => {allowed}]\n[<prefer_rule>: r2 > r1]",
+            "[<premise>: {amb}]\n[<premise>: {duty}]\n[<strict> s1: {amb} -> {vehicle}]\n[<defeasible> r1: {vehicle} => -{allowed}]\n[<defeasible> r2: {duty} => {allowed}]\n[<prefer_rule>: r2 > r1]",
+            "[<premise>: {amb}]\n[<premise>: {duty}]\n[<strict> s1: {amb} -> {vehicle}]\n[<defeasible> r1: {vehicle} => -{allowed}]\n[<defeasible> r2: {amb} & {duty} => {allowed}]",
+          ],
+          check(ctx) {
+            const v = w("vehicle", ctx.lang),
+              am = w("amb", ctx.lang),
+              du = w("duty", ctx.lang),
+              al = w("allowed", ctx.lang);
+            const facts = (ctx.decls.facts || []).map((f) => f.literal);
+            const rules = ctx.decls.rules || [];
+            const problems = [];
+            if (!facts.includes(am) || !facts.includes(du)) problems.push(tx(`Declare the facts ${q(am)} and ${q(du)}.`, `${q(am)} ve ${q(du)} olgularını bildirin.`));
+            if (factsAbout(ctx, v).length) problems.push(tx(`${q(v)} follows from ${q(am)} in the text, so derive it with a rule instead of declaring it.`, `Metinde ${q(v)}, ${q(am)} ifadesinden çıkıyor. Onu bildirmek yerine bir kuralla türetin.`));
+            if (factsAbout(ctx, al).length) problems.push(tx(`${q(al)} is what the text concludes. Derive it with rules.`, `${q(al)}, metnin vardığı sonuçtur. Onu kurallarla türetin.`));
+            if (!rules.some((x) => x.kind === "strict" && x.consequent === v && x.antecedents.includes(am)))
+              problems.push(tx(`“Every ambulance is a vehicle” has no exceptions: write it as a strict rule from ${q(am)} to ${q(v)}.`, `“Her ambulans bir araçtır” istisnasızdır: bunu ${q(am)} ifadesinden ${q(v)} ifadesine giden katı bir kural olarak yazın.`));
+            if (!rules.some((x) => x.kind === "defeasible" && x.consequent === neg(al) && x.antecedents.includes(v)))
+              problems.push(tx(`The general ban is a defeasible rule from ${q(v)} to ${q(neg(al))}.`, `Genel yasak, ${q(v)} ifadesinden ${q(neg(al))} ifadesine giden feshedilebilir bir kuraldır.`));
+            if (!rules.some((x) => x.kind === "defeasible" && x.consequent === al && hasAll(x.antecedents, [am, du])))
+              problems.push(tx(`The exception applies to an ambulance on duty: both ${q(am)} and ${q(du)} are its conditions.`, `İstisna görevdeki ambulans için geçerlidir: ${q(am)} ve ${q(du)} ifadelerinin ikisi de koşuldur.`));
+            if (problems.length) return { ok: false, msg: join(problems) };
+            const ok = statusOf(ctx.r, al) === "JUSTIFIED";
+            return {
+              ok,
+              msg: join([
+                ...lines(ctx.r),
+                ...failures(ctx.r),
+                claimLine(ctx.r, al),
+                ok ? tx("The specific exception beats the general ban, as the text says.", "Metinde söylendiği gibi, özel istisna genel yasağı yeniyor.") : tx("The text gives the exception precedence. Which preference expresses that?", "Metin istisnaya öncelik veriyor. Bunu hangi tercih ifade eder?"),
+              ]),
+            };
+          },
+        },
+        {
+          id: "modelling-3",
+          kind: "build",
+          task: tx(
+            "Text: “The witness says the car was red. The camera shows it was blue. A car cannot be both red and blue. The camera is more reliable than the witness.” The formalisation below gets two things wrong: the conflict runs in only one direction, and the priority is missing. Repair it so that {blue} is justified and {red} is overruled.",
+            "Metin: “Tanık arabanın kırmızı olduğunu söylüyor. Kamera ise mavi olduğunu gösteriyor. Bir araba hem kırmızı hem mavi olamaz. Kamera tanıktan daha güvenilirdir.” Aşağıdaki biçimselleştirme iki noktada hatalı: çatışma yalnızca tek yönde işliyor ve öncelik eksik. Kuramı düzeltin. Böylece {blue} gerekçelendirilmiş, {red} reddedilmiş olsun.",
+          ),
+          given: "[<premise>: {wsays}]\n[<premise>: {cshows}]\n[<defeasible> r1: {wsays} => {red}]\n[<defeasible> r2: {cshows} => {blue}]\n[<contrary>: {red} ^ {blue}]",
+          hint: tx("“Cannot be both” is a two-way conflict. The camera's rule should be the stronger one.", "“Hem … hem … olamaz” iki yönlü bir çatışmadır. Kameraya dayanan kural daha güçlü olmalı."),
+          solution: "[<premise>: {wsays}]\n[<premise>: {cshows}]\n[<defeasible> r1: {wsays} => {red}]\n[<defeasible> r2: {cshows} => {blue}]\n[<contradictory>: {red} ^ {blue}]\n[<prefer_rule>: r2 > r1]",
+          wrong: [
+            "[<premise>: {wsays}]\n[<premise>: {cshows}]\n[<defeasible> r1: {wsays} => {red}]\n[<defeasible> r2: {cshows} => {blue}]\n[<contrary>: {blue} ^ {red}]",
+            "[<premise>: {wsays}]\n[<premise>: {cshows}]\n[<defeasible> r1: {wsays} => {red}]\n[<defeasible> r2: {cshows} => {blue}]\n[<contradictory>: {red} ^ {blue}]",
+          ],
+          alternatives: [{ src: "[<premise>: {wsays}]\n[<premise>: {cshows}]\n[<defeasible> r1: {wsays} => {red}]\n[<defeasible> r2: {cshows} => {blue}]\n[<contradictory>: {red} ^ {blue}]\n[<prefer_premise>: {cshows} > {wsays}]\n[<prefer_rule>: r2 > r1]" }],
+          check(ctx) {
+            const rd = w("red", ctx.lang),
+              bl = w("blue", ctx.lang);
+            const key = (x) => JSON.stringify(x);
+            const keep = (part) => (ctx.givenDecls[part] || []).every((x) => (ctx.decls[part] || []).map(key).includes(key(x)));
+            if (!keep("facts") || !keep("rules")) return { ok: false, msg: tx("Keep the two premises and the two rules. Only the conflict and the priority need repairing.", "İki öncülü ve iki kuralı koruyun. Yalnızca çatışmanın ve önceliğin düzeltilmesi gerekiyor.") };
+            const cs = (ctx.decls.contraries || []).filter((x) => [x.source, x.target].includes(rd) && [x.source, x.target].includes(bl));
+            const twoWay = cs.some((x) => x.symmetric) || (cs.some((x) => x.source === rd) && cs.some((x) => x.source === bl));
+            const problems = [];
+            if (!twoWay) problems.push(tx("“Cannot be both” means each colour excludes the other: the conflict must run in both directions.", "“İkisi birden olamaz” her rengin diğerini dışladığı anlamına gelir: çatışma iki yönde de işlemeli."));
+            if (!(ctx.decls.rulePrefs || []).length && !(ctx.decls.premisePrefs || []).length) problems.push(tx("The text says the camera is more reliable. Add a preference that expresses this.", "Metin kameranın daha güvenilir olduğunu söylüyor. Bunu ifade eden bir tercih ekleyin."));
+            const ok = !problems.length && statusOf(ctx.r, bl) === "JUSTIFIED" && statusOf(ctx.r, rd) === "OVERRULED";
+            return { ok, msg: join([...problems, ...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, bl), claimLine(ctx.r, rd)]) };
+          },
+        },
+      ],
+    },
+    {
+      id: "labellings",
+      title: tx("Labellings", "Etiketlemeler"),
+      intro: tx(
+        "A labelling gives every argument one of three labels: IN (accepted), OUT (defeated) or UNDEC (undecided). A labelling is complete when it obeys three rules. An argument is IN exactly when all the arguments that defeat it are OUT. It is OUT exactly when at least one argument that defeats it is IN. Otherwise it is UNDEC. The grounded labelling is the complete labelling that labels as few arguments IN as possible. Every complete labelling corresponds to a complete extension: its IN arguments.",
+        "Etiketleme her argümana üç etiketten birini verir: IN (kabul edildi), OUT (yenildi) ya da UNDEC (kararsız). Bir etiketleme üç kurala uyuyorsa tamdır. Bir argüman, onu yenen bütün argümanlar OUT olduğunda ve ancak o zaman IN olur. Onu yenen argümanlardan en az biri IN olduğunda ve ancak o zaman OUT olur. Diğer durumlarda UNDEC olur. Temelli etiketleme, olabildiğince az argümanı IN olarak etiketleyen tam etiketlemedir. Her tam etiketleme bir tam kapsama karşılık gelir: o etiketlemedeki IN argümanlar.",
+      ),
+      exercises: [
+        {
+          id: "labellings-1",
+          kind: "label",
+          goal: "grounded",
+          task: tx("Here r2 is preferred to r1. Label every argument so that the result is the grounded labelling.", "Burada r2, r1'e tercih ediliyor. Her argümanı etiketleyin. Sonuç temelli etiketleme olmalı."),
+          given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]\n[<prefer_rule>: r2 > r1]",
+          hint: tx("Start with arguments that nothing defeats: they must be IN.", "Hiçbir şeyin yenmediği argümanlarla başlayın: bunlar IN olmalı."),
+        },
+        {
+          id: "labellings-2",
+          kind: "label",
+          goal: "grounded",
+          task: tx("Now there is no preference. Label every argument so that the result is the grounded labelling.", "Şimdi hiçbir tercih yok. Her argümanı etiketleyin. Sonuç temelli etiketleme olmalı."),
+          given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]",
+          hint: tx("When two arguments defeat each other and nothing else decides, the grounded labelling makes neither of them IN.", "İki argüman birbirini yeniyor ve başka hiçbir şey karar vermiyorsa, temelli etiketleme ikisini de IN yapmaz."),
+        },
+        {
+          id: "labellings-3",
+          kind: "label",
+          goal: "complete-in",
+          target: "flies",
+          task: tx(
+            "The same theory has other complete labellings. Find one in which the argument for {flies} is IN.",
+            "Aynı kuramın başka tam etiketlemeleri de var. {flies} için kurulan argümanın IN olduğu bir tane bulun.",
+          ),
+          given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]",
+          hint: tx("If the argument for {flies} is IN, what must happen to the argument it defeats?", "{flies} için kurulan argüman IN ise, onun yendiği argümana ne olmalı?"),
+        },
+      ],
+    },
+    {
+      id: "explanations",
+      title: tx("What makes a good explanation?", "İyi bir açıklama nasıl olur?"),
+      intro: tx(
+        "Argumentation is often used to explain results, because its dialectical structure matches how people explain. A good explanation is correct, meaning it really accounts for the result, and focused, meaning it leaves out what does not matter. Why is a claim overruled? Point, for every argument for it, to an accepted argument that defeats it. Why is an argument accepted although something defeats it? Show the defeat, and the accepted argument that defeats the defeater. In these exercises, select exactly the defeats that make up such an explanation, under grounded semantics.",
+        "Argümantasyon sonuçları açıklamak için sıkça kullanılır, çünkü diyalektik yapısı insanların açıklama yapma biçimine uyar. İyi bir açıklama doğrudur, yani sonucu gerçekten açıklar. Aynı zamanda odaklıdır, yani önemli olmayanı dışarıda bırakır. Bir iddia neden reddedilmiştir? Onun için kurulan her argüman için, o argümanı yenen kabul edilmiş bir argümanı gösterin. Bir argüman, onu yenen bir şey olmasına rağmen neden kabul edilmiştir? Ona yönelen başarılı saldırıyı ve bu saldırıyı yapan argümanı yenen kabul edilmiş argümanı gösterin. Bu alıştırmalarda temelli semantiğe göre böyle bir açıklamayı oluşturan başarılı saldırıları, ne eksik ne fazla, seçin.",
+      ),
+      exercises: [
+        {
+          id: "explanations-1",
+          kind: "explain",
+          mode: "overruled",
+          target: "flies",
+          task: tx("Why is {flies} overruled? Select the successful attacks that explain it, and nothing else.", "{flies} iddiası neden reddedilmiştir? Bunu açıklayan başarılı saldırıları seçin, başka hiçbirini seçmeyin."),
+          given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]\n[<prefer_rule>: r2 > r1]\n[<premise>: {windy}]\n[<premise>: -{windy}]",
+          hint: tx("Only arguments for {flies} matter, and only defeats by accepted arguments.", "Yalnızca {flies} için kurulan argümanlar ve yalnızca kabul edilmiş argümanların başarılı saldırıları önemlidir."),
+        },
+        {
+          id: "explanations-2",
+          kind: "explain",
+          mode: "overruled",
+          target: "flies",
+          task: tx(
+            "Now there are two arguments for {flies}, one from {bird} and one from {wings}. Why is {flies} overruled? Select exactly the successful attacks that explain it.",
+            "Şimdi {flies} için iki argüman var: biri {bird}, diğeri {wings} ifadesinden. {flies} iddiası neden reddedilmiştir? Bunu açıklayan başarılı saldırıları, ne eksik ne fazla, seçin.",
+          ),
+          given: "[<premise>: {bird}]\n[<premise>: {wings}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {wings} => {flies}]\n[<defeasible> r3: {penguin} => -{flies}]\n[<prefer_rule>: r3 > r1]\n[<prefer_rule>: r3 > r2]\n[<premise>: {windy}]\n[<premise>: -{windy}]",
+          hint: tx("An explanation must deal with every argument for the claim.", "Açıklama, iddia için kurulan her argümanı ele almalıdır."),
+        },
+        {
+          id: "explanations-3",
+          kind: "explain",
+          mode: "accepted",
+          target: "flies",
+          task: tx(
+            "The toy penguin again: {flies} is justified although an argument defeats the argument for it. Select exactly the successful attacks that explain why it is still accepted.",
+            "Yine oyuncak penguen: {flies} için kurulan argümanı yenen bir argüman olduğu hâlde iddia gerekçelendirilmiş. Argümanın neden hâlâ kabul edildiğini açıklayan başarılı saldırıları, ne eksik ne fazla, seçin.",
+          ),
+          given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]\n[<prefer_rule>: r2 > r1]\n[<premise>: {toy}]\n[<defeasible> r3: {toy} => -r2]\n[<premise>: {windy}]\n[<premise>: -{windy}]",
+          hint: tx("Show the defeat against the argument for {flies}, and what defeats that defeater.", "{flies} argümanına yönelen başarılı saldırıyı ve bu saldırıyı yapanı yeneni gösterin."),
+        },
+      ],
+    },
   ];
+
+  const LABELS = { IN: ["IN (accepted)", "IN (kabul edildi)"], OUT: ["OUT (defeated)", "OUT (yenildi)"], UNDEC: ["UNDEC (undecided)", "UNDEC (kararsız)"] };
+  const al = (r, i) => r.arguments[i].alias;
+  const aliases = (r, xs) => xs.map((i) => al(r, i)).join(", ");
+
+  function checkLabelling(e, ctx, input) {
+    const r = ctx.r;
+    const n = r.arguments.length;
+    const lab = (i) => input[i];
+    if (r.arguments.some((a, i) => !["IN", "OUT", "UNDEC"].includes(lab(i))))
+      return { ok: false, msg: tx("Give every argument a label first.", "Önce her argümana bir etiket verin.") };
+    const problems = [];
+    for (let i = 0; i < n; i++) {
+      const defs = r.attackers[i];
+      const inDefs = defs.filter((d) => lab(d) === "IN"),
+        undecDefs = defs.filter((d) => lab(d) === "UNDEC");
+      const must = defs.every((d) => lab(d) === "OUT") ? "IN" : inDefs.length ? "OUT" : "UNDEC";
+      if (lab(i) === must) continue;
+      const A = al(r, i);
+      if (lab(i) === "IN" && inDefs.length)
+        problems.push(tx(`${A} is IN, but ${aliases(r, inDefs)}, which defeats it, is IN too. An argument with an IN defeater must be OUT.`, `${A} IN olarak etiketlenmiş, ama onu yenen argüman da IN: ${aliases(r, inDefs)}. IN olan bir argüman tarafından yenilen argüman OUT olmalıdır.`));
+      else if (lab(i) === "IN")
+        problems.push(tx(`${A} is IN, but ${aliases(r, undecDefs)}, which defeats it, is UNDEC rather than OUT. An argument is IN only when all its defeaters are OUT.`, `${A} IN, ama onu yenen ${aliases(r, undecDefs)} OUT değil, UNDEC. Bir argüman ancak onu yenenlerin hepsi OUT olduğunda IN olur.`));
+      else if (lab(i) === "OUT" && !defs.length)
+        problems.push(tx(`${A} is OUT, but nothing defeats it, so it must be IN.`, `${A} OUT, ama onu yenen hiçbir şey yok. Bu yüzden IN olmalı.`));
+      else if (lab(i) === "OUT")
+        problems.push(tx(`${A} is OUT, but none of the arguments that defeat it (${aliases(r, defs)}) is IN.`, `${A} OUT, ama onu yenen argümanların (${aliases(r, defs)}) hiçbiri IN değil.`));
+      else if (must === "IN")
+        problems.push(
+          defs.length
+            ? tx(`${A} is UNDEC, but every argument that defeats it is OUT, so it must be IN.`, `${A} UNDEC, ama onu yenen her argüman OUT. Bu yüzden IN olmalı.`)
+            : tx(`${A} is UNDEC, but nothing defeats it, so it must be IN.`, `${A} UNDEC, ama onu yenen hiçbir şey yok. Bu yüzden IN olmalı.`),
+        );
+      else problems.push(tx(`${A} is UNDEC, but ${aliases(r, inDefs)}, which defeats it, is IN, so it must be OUT.`, `${A} UNDEC, ama onu yenen ${aliases(r, inDefs)} IN. Bu yüzden OUT olmalı.`));
+    }
+    if (problems.length) return { ok: false, msg: join([tx("This labelling is not complete.", "Bu etiketleme tam değil."), ...problems.slice(0, 4)]) };
+    const ins = r.arguments.map((a, i) => i).filter((i) => lab(i) === "IN");
+    const extNote = tx(`It is a complete labelling. Its IN arguments, {${aliases(r, ins)}}, form a complete extension.`, `Bu bir tam etiketleme. IN olan argümanları, {${aliases(r, ins)}}, bir tam kapsam oluşturur.`);
+    if (e.goal === "grounded") {
+      const diff = r.arguments.map((a, i) => i).filter((i) => lab(i) !== r.arguments[i].grounded);
+      if (diff.length)
+        return {
+          ok: false,
+          msg: join([
+            extNote,
+            tx(
+              `But it is not the grounded labelling, which labels as few arguments IN as possible. ${diff.map((i) => `${al(r, i)} should be ${r.arguments[i].grounded}`).join(", ")}.`,
+              `Ama bu, olabildiğince az argümanı IN olarak etiketleyen temelli etiketleme değil. ${diff.map((i) => `${al(r, i)} ${r.arguments[i].grounded} olmalı`).join(", ")}.`,
+            ),
+          ]),
+        };
+      return { ok: true, msg: join([extNote, tx("It is also the grounded labelling.", "Aynı zamanda temelli etiketlemedir.")]) };
+    }
+    const target = w(e.target, ctx.lang);
+    const inTarget = bearers(r, target).filter((i) => lab(i) === "IN");
+    if (!inTarget.length)
+      return { ok: false, msg: join([extNote, tx(`But the argument for ${q(target)} is not IN here.`, `Ama burada ${q(target)} için kurulan argüman IN değil.`)]) };
+    return {
+      ok: true,
+      msg: join([
+        extNote,
+        tx(`The argument ${aliases(r, inTarget)} for ${q(target)} is IN. Under preferred semantics this corresponds to one of the two preferred extensions.`, `${q(target)} için kurulan ${aliases(r, inTarget)} argümanı IN. Tercih edilen semantikte bu, iki tercih edilen kapsamdan birine karşılık gelir.`),
+      ]),
+    };
+  }
+
+  function defeatPairs(r) {
+    const seen = new Set();
+    const out = [];
+    for (const [a, t] of r.defeats) {
+      const key = a + ">" + t;
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push([a, t]);
+      }
+    }
+    return out;
+  }
+
+  function checkExplanation(e, ctx, input) {
+    const r = ctx.r;
+    const target = w(e.target, ctx.lang);
+    const picked = (input || []).map((x) => x.split(">").map(Number));
+    if (!picked.length) return { ok: false, msg: tx("Select at least one successful attack.", "En az bir başarılı saldırı seçin.") };
+    const line = ([a, t]) => `${al(r, a)} → ${al(r, t)}`;
+    const problems = [];
+    if (e.mode === "overruled") {
+      const B = bearers(r, target);
+      const covered = new Map();
+      for (const [a, t] of picked) {
+        if (!B.includes(t)) problems.push(tx(`${line([a, t])} is not about ${q(target)}: ${al(r, t)} concludes ${q(r.arguments[t].conclusion)}.`, `${line([a, t])} ${q(target)} ile ilgili değil: ${al(r, t)} argümanının sonucu ${q(r.arguments[t].conclusion)}.`));
+        else if (label(r, a) !== "IN") problems.push(tx(`${al(r, a)} is not accepted, so its attack cannot explain why ${al(r, t)} loses.`, `${al(r, a)} kabul edilmiş değil, bu yüzden saldırısı ${al(r, t)} argümanının neden kaybettiğini açıklayamaz.`));
+        else covered.set(t, (covered.get(t) || 0) + 1);
+      }
+      for (const b of B) {
+        if (!covered.has(b)) problems.push(tx(`${al(r, b)} is also an argument for ${q(target)}. Your selection does not say why it loses.`, `${q(target)} için kurulmuş bir argüman daha var: ${al(r, b)}. Seçiminiz onun neden kaybettiğini söylemiyor.`));
+        else if (covered.get(b) > 1) problems.push(tx(`You selected more than one defeat on ${al(r, b)}. One accepted defeater is enough.`, `${al(r, b)} için birden fazla başarılı saldırı seçtiniz. Kabul edilmiş tek bir yenen yeterli.`));
+      }
+      if (problems.length) return { ok: false, msg: join(problems) };
+      return {
+        ok: true,
+        msg: tx(
+          `Correct and focused. For every argument for ${q(target)} (${aliases(r, B)}) you show an accepted argument that defeats it, and nothing else.`,
+          `Doğru ve odaklı. ${q(target)} için kurulan her argüman (${aliases(r, B)}) için onu yenen kabul edilmiş bir argüman gösterdiniz, fazlasını değil.`,
+        ),
+      };
+    }
+    const b = bearers(r, target).find((i) => label(r, i) === "IN");
+    const defs = r.attackers[b];
+    const needDefeat = new Set(defs.map((d) => d + ">" + b));
+    const answered = new Map();
+    for (const [a, t] of picked) {
+      const key = a + ">" + t;
+      if (needDefeat.has(key)) continue;
+      if (defs.includes(t) && label(r, a) === "IN") answered.set(t, (answered.get(t) || 0) + 1);
+      else if (defs.includes(t)) problems.push(tx(`${al(r, a)} is not accepted, so its attack on ${al(r, t)} cannot do the defending.`, `${al(r, a)} kabul edilmiş değil, bu yüzden ${al(r, t)} argümanına saldırısı savunmayı sağlayamaz.`));
+      else problems.push(tx(`${line([a, t])} is not part of this explanation.`, `${line([a, t])} bu açıklamanın parçası değil.`));
+    }
+    for (const d of defs) {
+      if (!picked.some(([a, t]) => a === d && t === b)) problems.push(tx(`Show the defeat that needs answering: ${al(r, d)} → ${al(r, b)}.`, `Cevaplanması gereken başarılı saldırıyı gösterin: ${al(r, d)} → ${al(r, b)}.`));
+      if (!answered.has(d)) problems.push(tx(`Show what defeats ${al(r, d)}: an accepted argument that defeats it.`, `${al(r, d)} argümanını neyin yendiğini gösterin: onu yenen kabul edilmiş bir argüman.`));
+      else if (answered.get(d) > 1) problems.push(tx(`One accepted defeater of ${al(r, d)} is enough.`, `${al(r, d)} argümanını yenen kabul edilmiş tek bir argüman yeterli.`));
+    }
+    if (problems.length) return { ok: false, msg: join(problems) };
+    return {
+      ok: true,
+      msg: tx(
+        `Correct and focused. ${al(r, b)} is defeated by ${aliases(r, defs)}, but every one of these is itself defeated by an accepted argument, so ${al(r, b)} is defended.`,
+        `Doğru ve odaklı. ${al(r, b)}, ${aliases(r, defs)} tarafından yeniliyor. Ama bunların her biri de kabul edilmiş bir argüman tarafından yenildiği için ${al(r, b)} savunuluyor.`,
+      ),
+    };
+  }
+
+  function prepare(id, lang) {
+    const e = exercise(id);
+    const given = fill(e.given, lang);
+    const ctx = context(lang, given, given, e.settings);
+    return { r: ctx.r, pairs: ctx.r ? defeatPairs(ctx.r) : [] };
+  }
 
   function exercise(id) {
     for (const l of LESSONS) for (const e of l.exercises) if (e.id === id) return e;
@@ -1038,6 +1743,12 @@
   function evaluateAnswer(id, lang, input) {
     const e = exercise(id);
     const given = fill(e.given, lang);
+    if (e.kind === "label" || e.kind === "explain") {
+      const ctx = context(lang, given, given, e.settings);
+      const out = e.kind === "label" ? checkLabelling(e, ctx, input) : checkExplanation(e, ctx, input);
+      out.result = ctx.r;
+      return out;
+    }
     if (e.kind === "predict") {
       const ctx = context(lang, given, given, e.settings);
       const right = e.answer(ctx);
@@ -1111,7 +1822,7 @@
     return { nodes, edges };
   }
 
-  return { LESSONS, SETTINGS, SYNTAX, SYNTAX_NOTE, fill, fillText, exercise, evaluateAnswer, graphModel, statusWord, settingsText };
+  return { LESSONS, SETTINGS, SYNTAX, SYNTAX_NOTE, LABELS, fill, fillText, exercise, evaluateAnswer, prepare, graphModel, statusWord, settingsText };
 });
 
 (function () {
@@ -1165,7 +1876,8 @@
       if (out.result && window.ArgGraph) {
         graph.hidden = false;
         try {
-          window.ArgGraph.render(graph, L.graphModel(out.result, lang()), { label: "Argument graph" });
+          window.ArgGraph.render(graph, L.graphModel(out.result, lang()), { label: lang() === "tr" ? "İddialar ve kurallar" : "Claims and rules" });
+          caption.hidden = false;
         } catch (err) {
           graph.hidden = true;
         }
@@ -1177,7 +1889,51 @@
         document.querySelectorAll(".learn-progress").forEach((n) => n.replaceChildren(...both(progressText())));
       }
     };
-    if (e.kind === "predict") {
+    if (e.kind === "label" || e.kind === "explain") {
+      const inputs = {};
+      for (const lg of ["en", "tr"]) {
+        const block = el("div", { class: "lang-block " + lg });
+        block.append(el("pre", { class: "given" }, L.fill(e.given, lg)));
+        const prep = L.prepare(e.id, lg);
+        if (e.kind === "label") {
+          const table = el("table", { class: "syntax-table label-table" });
+          const body = el("tbody");
+          inputs[lg] = [];
+          prep.r.arguments.forEach((a, i) => {
+            const sel = el("select", { "aria-label": a.alias });
+            sel.append(el("option", { value: "" }, "—"));
+            for (const v of ["IN", "OUT", "UNDEC"]) sel.append(el("option", { value: v }, L.LABELS[v][lg === "tr" ? 1 : 0]));
+            inputs[lg].push(sel);
+            const shown = lg === "tr" ? a.text.replace(/^premise /, "öncül ").replace(/^axiom /, "aksiyom ") : a.text;
+            body.append(el("tr", {}, el("td", {}, a.alias), el("td", {}, el("code", {}, shown)), el("td", {}, sel)));
+          });
+          table.append(body);
+          block.append(el("div", { class: "table-wrap" }, table));
+        } else {
+          const list = el("div", { class: "defeat-list" });
+          inputs[lg] = [];
+          for (const [a, t] of prep.pairs) {
+            const box = el("input", { type: "checkbox", value: a + ">" + t });
+            inputs[lg].push(box);
+            const A = prep.r.arguments[a],
+              T = prep.r.arguments[t];
+            list.append(el("label", { class: "choice" }, box, " ", `${A.alias} (${A.conclusion}) → ${T.alias} (${T.conclusion})`));
+          }
+          block.append(el("p", { class: "settings-line" }, lg === "tr" ? "Başarılı saldırılar:" : "Successful attacks:"), list);
+        }
+        card.append(block);
+      }
+      const check = el("button", { type: "button", class: "primary" }, ...both({ en: "Check", tr: "Kontrol et" }));
+      check.onclick = () => {
+        attempts++;
+        const lg = lang();
+        const answer = e.kind === "label" ? inputs[lg].map((x) => x.value) : inputs[lg].filter((x) => x.checked).map((x) => x.value);
+        show(L.evaluateAnswer(e.id, lg, answer));
+      };
+      const hint = el("button", { type: "button" }, ...both({ en: "Hint", tr: "İpucu" }));
+      hint.onclick = () => show({ ok: false, msg: { en: L.fillText(e.hint.en, "en"), tr: L.fillText(e.hint.tr, "tr") } });
+      card.append(el("div", { class: "actions" }, check, hint));
+    } else if (e.kind === "predict") {
       card.append(el("pre", { class: "given en" }, L.fill(e.given, "en")), el("pre", { class: "given tr" }, L.fill(e.given, "tr")));
       const group = el("div", { class: "choices", role: "radiogroup" });
       for (const c of e.choices) {
@@ -1234,7 +1990,11 @@
       };
       card.append(el("div", { class: "actions" }, check, hint, reset, solution));
     }
-    card.append(feedback, graph);
+    const caption = el("p", { class: "graph-caption", hidden: true }, ...both({
+      en: "Claims and rules: arguments with the same conclusion are drawn as one box. Red arrows are successful attacks, dashed arrows failed ones.",
+      tr: "İddialar ve kurallar: aynı sonuca varan argümanlar tek kutuda gösterilir. Kırmızı oklar başarılı, kesikli oklar başarısız saldırılardır.",
+    }));
+    card.append(feedback, graph, caption);
     return card;
   }
 
@@ -1284,7 +2044,7 @@
   }
   function watchLanguage() {
     new MutationObserver(() => {
-      document.querySelectorAll(".exercise .feedback, .exercise .mini-graph").forEach((n) => (n.hidden = true));
+      document.querySelectorAll(".exercise .feedback, .exercise .mini-graph, .exercise .graph-caption").forEach((n) => (n.hidden = true));
     }).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   }
   function start() {

@@ -42,10 +42,10 @@ workspace: true
           <label
             ><span data-t>Semantics</span>
             <select id="semantics">
-              <option value="grounded" data-t>Grounded</option>
-              <option value="preferred" data-t>Preferred</option>
-              <option value="stable" data-t>Stable</option>
-              <option value="complete" data-t>Complete</option>
+              <option value="grounded" data-t>Grounded: one cautious answer</option>
+              <option value="preferred" data-t>Preferred: every maximal defensible view</option>
+              <option value="stable" data-t>Stable: views that defeat everything outside</option>
+              <option value="complete" data-t>Complete: every self-consistent view</option>
             </select>
           </label>
           <label
@@ -69,6 +69,7 @@ workspace: true
         </div>
         <div class="row actions">
           <button id="evaluate" type="button" hidden data-t>Evaluate again</button>
+          <button id="share" type="button" data-t>Copy link</button>
           <button id="cancel" type="button" hidden data-t>Cancel</button>
         </div>
         <p id="status" role="status" aria-live="polite"></p>

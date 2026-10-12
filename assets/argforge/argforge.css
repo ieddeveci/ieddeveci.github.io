@@ -806,6 +806,20 @@ html[lang="tr"] .table-wrap.en,
 html[lang="en"] .table-wrap.tr {
   display: none;
 }
+.graph-caption {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+.defeat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 10px;
+}
+.label-table select {
+  min-width: 150px;
+}
 
 :root {
   --paper: #0e0f0f;
