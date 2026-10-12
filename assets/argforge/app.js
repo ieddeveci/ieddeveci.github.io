@@ -60,10 +60,10 @@
     Contrary: "Karşıt",
     Contradictory: "Çelişik",
     fails: "başarısız",
-    "There is no {s} extension for this theory; the labels shown are the grounded ones.":
+    "There is no {s} extension for this theory; the labels shown are the  ones.":
       "Bu kuram için {s} kapsam yok. Gösterilen etiketler temelli olanlardır.",
-    "In the grounded extension:": "Temelli kapsamda:",
-    grounded: "temelli",
+    "In the  extension:": "Temelli kapsamda:",
+    : "temelli",
     complete: "tam",
     preferred: "tercih edilen",
     stable: "kararlı",
@@ -80,7 +80,7 @@
     "The claim {c}": "{c} iddiası",
     "The {s} semantics has no extension for this theory, so no claim has a status.":
       "{s} semantiğin bu kuram için kapsamı yok, bu yüzden hiçbir iddianın durumu yok.",
-    "The grounded extension contains an argument for it: ":
+    "The  extension contains an argument for it: ":
       "Temelli kapsam onun için bir argüman içeriyor: ",
     "Every one of the {n} extensions contains an argument for it, not necessarily the same one. ":
       "{n} kapsamın her biri onun için bir argüman içeriyor. Bu argüman her seferinde aynı olmak zorunda değil. ",
@@ -94,12 +94,12 @@
     "No extension accepts it, but not every argument for it is always defeated. In this extension: ":
       "Hiçbir kapsam onu kabul etmiyor, ama onun için olan argümanların hepsi her kapsamda yenilmiyor. Bu kapsamda: ",
     "undecided ": "kararsız ",
-    "In the grounded extension, every argument for it is defeated: ":
+    "In the  extension, every argument for it is defeated: ":
       "Temelli kapsamda, onun için olan her argüman yenildi: ",
-    "The grounded extension does not accept it, but not every argument for it is defeated: ":
+    "The  extension does not accept it, but not every argument for it is defeated: ":
       "Temelli kapsam onu kabul etmiyor, ama onun için olan her argüman yenilmiş değil: ",
     "defeated ": "yenilmiş ",
-    "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try grounded semantics or a smaller theory.":
+    "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try  semantics or a smaller theory.":
       "Arka plandaki değerlendirme beklenmedik biçimde durdu. Büyük olasılıkla tarayıcının belleği yetmedi, çünkü bu kuramın seçilen semantik için çok fazla kapsamı var. Temelli semantiği ya da daha küçük bir kuramı deneyin.",
     Introduction: "Giriş",
     Workspace: "Çalışma alanı",
@@ -120,14 +120,14 @@
     "Theory text": "Kuram metni",
     "How to write a theory": "Kuram nasıl yazılır",
     Semantics: "Semantik",
-    "Grounded: one cautious answer": "Temelli: tek ve temkinli yanıt",
-    "Preferred: every view that defends itself and cannot be extended":
-      "Tercih edilen: kendini savunan ve daha fazla genişletilemeyen her görüş",
-    "Stable: conflict-free views that defeat everything outside": "Kararlı: dışarıdaki her şeyi yenen çatışmasız görüşler",
-    "Complete: every view that defends itself and includes all it defends": "Tam: kendini savunan ve savunduğu her şeyi içeren her görüş",
+    "Grounded": "Temelli",
+    "Preferred":
+      "Tercih edilen",
+    "Stable": "Kararlı",
+    "Complete": "Tam",
     "Comparing arguments": "Argümanların karşılaştırılması",
-    "Last link: last defeasible rules decide": "Son halka: son feshedilebilir kurallar belirler",
-    "Weakest link: weakest step decides": "En zayıf halka: en zayıf adım belirler",
+    "Last link": "Son halka",
+    "Weakest link": "En zayıf halka",
     "Comparing sets": "Küme sıralaması",
     Elitist: "Elitist",
     Democratic: "Demokratik",
