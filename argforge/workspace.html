@@ -23,6 +23,7 @@ workspace: true
         <p id="example-note" class="note" hidden></p>
         <div class="row generate">
           <button id="random" type="button" data-t>Generate a random theory</button>
+          <button id="restore" type="button" hidden data-t>Restore previous theory</button>
         </div>
         <textarea
           id="source"
@@ -69,9 +70,11 @@ workspace: true
         </div>
         <div class="row actions">
           <button id="evaluate" type="button" hidden data-t>Evaluate again</button>
+          <button id="share" type="button" data-t>Copy link</button>
           <button id="cancel" type="button" hidden data-t>Cancel</button>
         </div>
         <p id="status" role="status" aria-live="polite"></p>
+        <p id="worker-note" class="note" hidden data-t>Background evaluation is not available in this browser, for example when the page is opened as a local file. Evaluations run on the page itself and cannot be cancelled, so a very large theory can make the page unresponsive.</p>
       </section>
 
       <section class="panel graph" aria-labelledby="graph-title">
@@ -100,6 +103,7 @@ workspace: true
           ><input id="show-defeats" type="checkbox" checked />
           <span data-t>Show defeats</span></label
         >
+        <p id="projection-note" class="note" data-t>Claims and rules is a summary: arguments for the same claim share one box, and each attack is drawn where it lands. An attack on a premise or step also defeats every argument built on it, even though no separate arrow is drawn to those arguments. “Every argument” shows all of them.</p>
       </section>
 
       <section class="panel claims" aria-labelledby="claims-title">

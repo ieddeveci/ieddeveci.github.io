@@ -60,10 +60,10 @@
     Contrary: "Karşıt",
     Contradictory: "Çelişik",
     fails: "başarısız",
-    "There is no {s} extension for this theory; the labels shown are the  ones.":
+    "There is no {s} extension for this theory; the labels shown are the grounded ones.":
       "Bu kuram için {s} kapsam yok. Gösterilen etiketler temelli olanlardır.",
-    "In the  extension:": "Temelli kapsamda:",
-    : "temelli",
+    "In the grounded extension:": "Temelli kapsamda:",
+    grounded: "temelli",
     complete: "tam",
     preferred: "tercih edilen",
     stable: "kararlı",
@@ -80,7 +80,18 @@
     "The claim {c}": "{c} iddiası",
     "The {s} semantics has no extension for this theory, so no claim has a status.":
       "{s} semantiğin bu kuram için kapsamı yok, bu yüzden hiçbir iddianın durumu yok.",
-    "The  extension contains an argument for it: ":
+    "Replace the theory you have written? You can bring it back with “Restore previous theory”.":
+      "Yazdığınız kuramın yerine yenisi konsun mu? Eskisini “Önceki kuramı geri getir” düğmesiyle geri alabilirsiniz.",
+    "Restore previous theory": "Önceki kuramı geri getir",
+    "Background evaluation is not available here, so this large theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?":
+      "Arka planda değerlendirme burada kullanılamıyor. Bu büyük kuram sayfanın kendisinde değerlendirilecek ve bu sırada sayfa yanıt vermeyebilir. Yine de değerlendirilsin mi?",
+    "Evaluation not started.": "Değerlendirme başlatılmadı.",
+    "Background evaluation is not available in this browser, for example when the page is opened as a local file. Evaluations run on the page itself and cannot be cancelled, so a very large theory can make the page unresponsive.":
+      "Arka planda değerlendirme bu tarayıcıda kullanılamıyor, örneğin sayfa yerel bir dosya olarak açıldığında. Değerlendirmeler sayfanın kendisinde yapılır ve iptal edilemez. Bu yüzden çok büyük bir kuram sayfanın yanıt vermemesine yol açabilir.",
+    "Claims and rules is a summary: arguments for the same claim share one box, and each attack is drawn where it lands. An attack on a premise or step also defeats every argument built on it, even though no separate arrow is drawn to those arguments. “Every argument” shows all of them.":
+      "İddialar ve kurallar bir özettir: aynı iddia için kurulan argümanlar tek kutuyu paylaşır ve her saldırı, hedef aldığı yere çizilir. Bir öncüle ya da adıma yapılan saldırı, onun üzerine kurulan her argümanı da yener, ama bu argümanlara ayrı bir ok çizilmez. “Her argüman” görünümü hepsini gösterir.",
+    "The only {s} extension contains an argument for it: ": "Tek {s} kapsam onun için bir argüman içeriyor: ",
+    "The grounded extension contains an argument for it: ":
       "Temelli kapsam onun için bir argüman içeriyor: ",
     "Every one of the {n} extensions contains an argument for it, not necessarily the same one. ":
       "{n} kapsamın her biri onun için bir argüman içeriyor. Bu argüman her seferinde aynı olmak zorunda değil. ",
@@ -94,12 +105,12 @@
     "No extension accepts it, but not every argument for it is always defeated. In this extension: ":
       "Hiçbir kapsam onu kabul etmiyor, ama onun için olan argümanların hepsi her kapsamda yenilmiyor. Bu kapsamda: ",
     "undecided ": "kararsız ",
-    "In the  extension, every argument for it is defeated: ":
+    "In the grounded extension, every argument for it is defeated: ":
       "Temelli kapsamda, onun için olan her argüman yenildi: ",
-    "The  extension does not accept it, but not every argument for it is defeated: ":
+    "The grounded extension does not accept it, but not every argument for it is defeated: ":
       "Temelli kapsam onu kabul etmiyor, ama onun için olan her argüman yenilmiş değil: ",
     "defeated ": "yenilmiş ",
-    "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try  semantics or a smaller theory.":
+    "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try grounded semantics or a smaller theory.":
       "Arka plandaki değerlendirme beklenmedik biçimde durdu. Büyük olasılıkla tarayıcının belleği yetmedi, çünkü bu kuramın seçilen semantik için çok fazla kapsamı var. Temelli semantiği ya da daha küçük bir kuramı deneyin.",
     Introduction: "Giriş",
     Workspace: "Çalışma alanı",
@@ -354,7 +365,7 @@
       src: "[axiom: a]\n[defeasible low: a => b]\n[defeasible high: b => p]\n[defeasible mid: a => -p]\n[prefer_rule: high > mid]\n[prefer_rule: mid > low]\n",
       src_tr:
         "[aksiyom: a]\n[feshedilebilir dusuk: a => b]\n[feshedilebilir yuksek: b => p]\n[feshedilebilir orta: a => -p]\n[kural_tercihi: yuksek > orta]\n[kural_tercihi: orta > dusuk]\n",
-      note: "The argument for p ends in a strong rule but contains a weak one. With “Last link: last defeasible rules decide”, p wins; switch to “Weakest link: weakest step decides” and -p wins.",
+      note: "The argument for p ends in a strong rule but contains a weak one. With “Last link”, p wins; switch to “Weakest link” and -p wins.",
       note_tr:
         "p argümanı güçlü bir kuralla biter ama zayıf bir kural içerir. “Son halka” ile p kazanır. “En zayıf halka” seçeneğine geçtiğinizde -p kazanır.",
       settings: {
@@ -568,7 +579,19 @@
     w.postMessage({ id: request.id, source: request.source, options: request.options });
     showRunning(request);
   }
+  function announceLocal() {
+    const n = $("worker-note");
+    if (n) n.hidden = false;
+  }
   function runHere(request) {
+    announceLocal();
+    const size = (request.source.match(/\[/g) || []).length;
+    if (size > 60 && !window.confirm(T("Background evaluation is not available here, so this large theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?"))) {
+      pending = null;
+      hideRunning();
+      status(T("Evaluation not started."));
+      return;
+    }
     pending = null;
     hideRunning();
     try {
@@ -975,6 +998,7 @@
   }
   function syncMode() {
     $("mode-claims").setAttribute("aria-pressed", String(state.mode === "claims"));
+    $("projection-note").hidden = state.mode !== "claims";
     $("mode-arguments").setAttribute("aria-pressed", String(state.mode === "arguments"));
   }
   function select(i) {
@@ -1477,8 +1501,11 @@
         ),
       );
     else if (c.status === "JUSTIFIED") {
-      if (c.count === 1) {
+      if (grounded) {
         q.append(T("The grounded extension contains an argument for it: "));
+        list(q, here.accepted);
+      } else if (c.count === 1) {
+        q.append(T("The only {s} extension contains an argument for it: ", { s: T(r.semantics) }));
         list(q, here.accepted);
       } else {
         q.append(
@@ -1544,6 +1571,7 @@
     try {
       const d = JSON.parse(decodeURIComponent(location.hash.slice(1)));
       $("source").value = d.s || "";
+      loadedText = $("source").value;
       if (d.semantics) $("semantics").value = d.semantics;
       if (d.ordering) $("ordering").value = d.ordering;
       if (d.setOrdering) $("set-ordering").value = d.setOrdering;
@@ -1559,10 +1587,36 @@
       return crypto.getRandomValues(new Uint32Array(1))[0] >>> 1;
     return Math.floor(Math.random() * 2 ** 31);
   }
+  let loadedText = null,
+    previousText = null;
+  function replaceTheory(text) {
+    const current = $("source").value;
+    if (current.trim() && current !== loadedText && current !== text) {
+      if (!window.confirm(T("Replace the theory you have written? You can bring it back with “Restore previous theory”."))) return false;
+    }
+    if (current.trim() && current !== text) {
+      previousText = current;
+      $("restore").hidden = false;
+    }
+    $("source").value = text;
+    loadedText = text;
+    return true;
+  }
+  function restorePrevious() {
+    if (previousText === null) return;
+    const back = previousText;
+    previousText = $("source").value;
+    $("source").value = back;
+    loadedText = null;
+    $("example").value = "";
+    showExampleNote();
+    evaluate();
+  }
   function generate() {
     let seed = randomSeed(),
       text = AF.generateSource(seed, AF.variedParams(seed, "any"));
-    for (let attempt = 0; attempt < 30; attempt++) {
+    const started = performance.now();
+    for (let attempt = 0; attempt < 30 && performance.now() - started < 1500; attempt++) {
       try {
         const probe = AF.evaluate(text, { ...options(), semantics: "grounded", maxArguments: 300 });
         if (probe.arguments.length >= 3) break;
@@ -1570,7 +1624,7 @@
       seed = randomSeed();
       text = AF.generateSource(seed, AF.variedParams(seed, "any"));
     }
-    $("source").value = LANG === "TUR" ? translateKeywords(text, "TUR") : text;
+    if (!replaceTheory(LANG === "TUR" ? translateKeywords(text, "TUR") : text)) return;
     $("example").value = "";
     showExampleNote();
     evaluate({ seed });
@@ -1611,7 +1665,9 @@
       applyStatic();
       renderInsertBar();
       fillExamples();
+      const wasLoaded = $("source").value === loadedText;
       $("source").value = translateKeywords($("source").value, LANG);
+      if (wasLoaded) loadedText = $("source").value;
       showExampleNote();
       if (state.result) {
         render();
@@ -1619,14 +1675,19 @@
       } else evaluate();
     };
     ex.onchange = () => {
+      if (ex.value !== "" && !replaceTheory(exampleSource(EXAMPLES[Number(ex.value)]))) {
+        ex.value = "";
+        showExampleNote();
+        return;
+      }
       if (ex.value !== "") applyExampleSettings(EXAMPLES[Number(ex.value)]);
       showExampleNote();
       if (ex.value === "") return;
-      $("source").value = exampleSource(EXAMPLES[Number(ex.value)]);
       state.selected = null;
       evaluate();
     };
     $("random").onclick = generate;
+    $("restore").onclick = restorePrevious;
     $("cancel").onclick = cancel;
     $("claim-failed").onchange = renderClaimGraph;
     $("claim-mode-claims").onclick = () => {
@@ -1666,6 +1727,7 @@
     if (!restore()) {
       ex.value = "0";
       $("source").value = exampleSource(EXAMPLES[0]);
+      loadedText = $("source").value;
     }
     applyStatic();
     fillExamples();

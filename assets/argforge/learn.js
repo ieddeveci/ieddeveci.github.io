@@ -817,10 +817,11 @@
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const g = w("guilty", ctx.lang),
               al = w("alibi", ctx.lang);
+            const r = ctx.r;
             const cs = ctx.decls.contraries || [];
             const forward = cs.find((x) => !x.symmetric && x.source === al && x.target === g);
             const backward = cs.find((x) => (x.symmetric && [x.source, x.target].includes(al) && [x.source, x.target].includes(g)) || (x.source === g && x.target === al));
-            const base = [...lines(ctx.r), claimLine(ctx.r, g)];
+            const base = [...lines(r), claimLine(r, g)];
             if (backward)
               return {
                 ok: false,
@@ -830,14 +831,11 @@
                 ]),
               };
             if (!forward)
-              return {
-                ok: false,
-                msg: join([
-                  ...base,
-                  tx(`Declare a one-way conflict from ${q(al)} to ${q(g)}: [contrary: … ^ …].`, `${q(al)} ifadesinden ${q(g)} ifadesine tek yönlü bir çatışma bildirin: [karşıt: … ^ …].`),
-                ]),
-              };
-            return { ok: statusOf(ctx.r, g) === "OVERRULED", msg: join([...base, claimReason(ctx.r, g)]) };
+              return { ok: false, msg: join([...base, tx(`Declare a one-way conflict from ${q(al)} to ${q(g)}: [contrary: … ^ …].`, `${q(al)} ifadesinden ${q(g)} ifadesine tek yönlü bir çatışma bildirin: [karşıt: … ^ …].`)]) };
+            const viaContrary = r.attacks.some((a) => a.succeeds && r.arguments[a.attacker].conclusion === al && r.arguments[a.target].conclusion === g);
+            if (!viaContrary)
+              return { ok: false, msg: join([...base, tx(`The declared conflict produces no successful attack from ${q(al)} on ${q(g)}.`, `Bildirilen çatışma, ${q(al)} ifadesinden ${q(g)} iddiasına başarılı bir saldırı oluşturmuyor.`)]) };
+            return { ok: statusOf(r, g) === "OVERRULED", msg: join([...base, claimReason(r, g)]) };
           },
         },
         {
@@ -1420,31 +1418,55 @@
             const ps = w("passed", ctx.lang),
               ch = w("cheated", ctx.lang),
               c = w("cert", ctx.lang);
+            const r = ctx.r;
             const facts = (ctx.decls.facts || []).map((f) => f.literal);
             const problems = [];
             if (!facts.includes(ps) || !facts.includes(ch))
               problems.push(tx(`${q(ps)} and ${q(ch)} are facts about Ali. Declare both.`, `${q(ps)} ve ${q(ch)}, Ali hakkındaki olgulardır. İkisini de bildirin.`));
             if (factsAbout(ctx, c).length)
               problems.push(tx(`${q(c)} is a conclusion in the text, not a fact. Derive it, or its negation, with rules.`, `${q(c)} metinde bir sonuçtur, olgu değildir. Onu ya da değilini kurallarla türetin.`));
-            const general = (ctx.decls.rules || []).filter((x) => x.kind === "defeasible" && x.consequent === c && x.antecedents.includes(ps));
-            if (!general.length)
-              problems.push(tx(`The text says that passing normally leads to the certificate: a defeasible rule from ${q(ps)} to ${q(c)}.`, `Metne göre sınavı geçmek normalde sertifikaya götürür: ${q(ps)} ifadesinden ${q(c)} ifadesine giden feshedilebilir bir kural.`));
-            const exception = (ctx.decls.rules || []).some(
-              (x) => x.antecedents.includes(ch) && (x.consequent === neg(c) || general.some((g) => x.consequent === "-" + g.name)),
-            );
-            if (!exception)
-              problems.push(tx(`The exception needs a rule from ${q(ch)}, either to ${q(neg(c))} or against the general rule.`, `İstisna için ${q(ch)} ifadesinden çıkan bir kural gerekiyor: ya ${q(neg(c))} sonucuna giden ya da genel kurala saldıran.`));
             if (problems.length) return { ok: false, msg: join(problems) };
-            const out = statusOf(ctx.r, c) === "OVERRULED";
+            const ruleOf = (i) => (ctx.decls.rules || []).find((x) => x.name === r.arguments[i].rule);
+            const general = r.arguments.map((a, i) => i).filter((i) => {
+              const rule = ruleOf(i);
+              return rule && rule.kind === "defeasible" && rule.consequent === c && rule.antecedents.includes(ps);
+            });
+            if (!general.length)
+              return {
+                ok: false,
+                msg: tx(
+                  `The text says that passing normally leads to the certificate, but no argument applies such a rule. Write a defeasible rule from ${q(ps)} to ${q(c)} whose conditions can all be derived.`,
+                  `Metne göre sınavı geçmek normalde sertifikaya götürür, ama böyle bir kuralı uygulayan bir argüman yok. ${q(ps)} ifadesinden ${q(c)} ifadesine giden ve bütün koşulları türetilebilen feshedilebilir bir kural yazın.`,
+                ),
+              };
+            const generalRules = general.map((i) => r.arguments[i].rule);
+            const exception = r.arguments.map((a, i) => i).filter((i) => {
+              const rule = ruleOf(i);
+              return rule && rule.antecedents.includes(ch) && (rule.consequent === neg(c) || generalRules.some((g) => rule.consequent === "-" + g));
+            });
+            if (!exception.length)
+              return {
+                ok: false,
+                msg: tx(
+                  `The exception never applies: no argument uses a rule from ${q(ch)} that concludes ${q(neg(c))} or attacks the general rule. Check that such a rule exists and that its conditions can be derived.`,
+                  `İstisna hiç uygulanmıyor: ${q(ch)} ifadesinden çıkıp ${q(neg(c))} sonucuna varan ya da genel kurala saldıran bir kuralı kullanan argüman yok. Böyle bir kuralın olduğunu ve koşullarının türetilebildiğini kontrol edin.`,
+                ),
+              };
+            const decisive = r.attacks.filter((a) => exception.includes(a.attacker) && general.includes(a.target));
+            const wins = decisive.filter((a) => a.succeeds);
+            const base = [...decisive.map((a) => attackLine(r, a)), ...decisive.filter((a) => !a.succeeds).map((a) => whyFailed(r, a))];
+            if (!wins.length)
+              return { ok: false, msg: join([...base, tx("The exception does not defeat the general rule. The text gives the exception priority: express that.", "İstisna genel kuralı yenmiyor. Metin istisnaya öncelik veriyor: bunu ifade edin.")]) };
+            const out = statusOf(r, c) === "OVERRULED";
             return {
               ok: out,
               msg: join([
-                ...lines(ctx.r),
-                ...failures(ctx.r),
-                claimLine(ctx.r, c),
+                ...base,
+                ...r.attacks.filter((a) => general.includes(a.attacker) && exception.includes(a.target)).map((a) => attackLine(r, a)),
+                claimLine(r, c),
                 out
-                  ? claimReason(ctx.r, c)
-                  : tx("The priority in the text is missing: as it stands, nothing makes the exception win.", "Metindeki öncelik eksik. Şu hâliyle istisnanın kazanmasını sağlayan bir şey yok."),
+                  ? tx("The exception defeats the general rule, as the text says, so the certificate is overruled.", "Metinde söylendiği gibi istisna genel kuralı yeniyor, bu yüzden sertifika reddediliyor.")
+                  : claimReason(r, c),
               ]),
             };
           },
@@ -1472,27 +1494,63 @@
               am = w("amb", ctx.lang),
               du = w("duty", ctx.lang),
               al = w("allowed", ctx.lang);
+            const r = ctx.r;
             const facts = (ctx.decls.facts || []).map((f) => f.literal);
             const rules = ctx.decls.rules || [];
+            const ruleOf = (i) => rules.find((x) => x.name === r.arguments[i].rule);
             const problems = [];
             if (!facts.includes(am) || !facts.includes(du)) problems.push(tx(`Declare the facts ${q(am)} and ${q(du)}.`, `${q(am)} ve ${q(du)} olgularını bildirin.`));
             if (factsAbout(ctx, v).length) problems.push(tx(`${q(v)} follows from ${q(am)} in the text, so derive it with a rule instead of declaring it.`, `Metinde ${q(v)}, ${q(am)} ifadesinden çıkıyor. Onu bildirmek yerine bir kuralla türetin.`));
             if (factsAbout(ctx, al).length) problems.push(tx(`${q(al)} is what the text concludes. Derive it with rules.`, `${q(al)}, metnin vardığı sonuçtur. Onu kurallarla türetin.`));
-            if (!rules.some((x) => x.kind === "strict" && x.consequent === v && x.antecedents.includes(am)))
-              problems.push(tx(`“Every ambulance is a vehicle” has no exceptions: write it as a strict rule from ${q(am)} to ${q(v)}.`, `“Her ambulans bir araçtır” istisnasızdır: bunu ${q(am)} ifadesinden ${q(v)} ifadesine giden katı bir kural olarak yazın.`));
-            if (!rules.some((x) => x.kind === "defeasible" && x.consequent === neg(al) && x.antecedents.includes(v)))
-              problems.push(tx(`The general ban is a defeasible rule from ${q(v)} to ${q(neg(al))}.`, `Genel yasak, ${q(v)} ifadesinden ${q(neg(al))} ifadesine giden feshedilebilir bir kuraldır.`));
-            if (!rules.some((x) => x.kind === "defeasible" && x.consequent === al && hasAll(x.antecedents, [am, du])))
-              problems.push(tx(`The exception applies to an ambulance on duty: both ${q(am)} and ${q(du)} are its conditions.`, `İstisna görevdeki ambulans için geçerlidir: ${q(am)} ve ${q(du)} ifadelerinin ikisi de koşuldur.`));
             if (problems.length) return { ok: false, msg: join(problems) };
-            const ok = statusOf(ctx.r, al) === "JUSTIFIED";
+            const vehicleArgs = r.arguments.map((a, i) => i).filter((i) => {
+              const rule = ruleOf(i);
+              return rule && rule.kind === "strict" && rule.consequent === v && rule.antecedents.includes(am);
+            });
+            if (!vehicleArgs.length)
+              return { ok: false, msg: tx(`“Every ambulance is a vehicle” has no exceptions: write it as a strict rule from ${q(am)} to ${q(v)}.`, `“Her ambulans bir araçtır” istisnasızdır: bunu ${q(am)} ifadesinden ${q(v)} ifadesine giden katı bir kural olarak yazın.`) };
+            const ban = r.arguments.map((a, i) => i).filter((i) => {
+              const rule = ruleOf(i);
+              return rule && rule.kind === "defeasible" && rule.consequent === neg(al) && r.arguments[i].children.some((ch) => vehicleArgs.includes(ch));
+            });
+            if (!ban.length)
+              return {
+                ok: false,
+                msg: tx(
+                  `The general ban never applies: no argument derives ${q(neg(al))} from the fact that the ambulance is a vehicle. Write a defeasible rule from ${q(v)} to ${q(neg(al))} whose conditions can all be derived.`,
+                  `Genel yasak hiç uygulanmıyor: ambulansın bir araç olmasından ${q(neg(al))} sonucunu türeten bir argüman yok. ${q(v)} ifadesinden ${q(neg(al))} ifadesine giden ve bütün koşulları türetilebilen feshedilebilir bir kural yazın.`,
+                ),
+              };
+            const exception = r.arguments.map((a, i) => i).filter((i) => {
+              const rule = ruleOf(i);
+              return rule && rule.kind === "defeasible" && rule.consequent === al && hasAll(rule.antecedents, [am, du]);
+            });
+            if (!exception.length)
+              return {
+                ok: false,
+                msg: tx(
+                  `The exception never applies: no argument derives ${q(al)} for an ambulance on duty. Its rule needs the conditions ${q(am)} and ${q(du)}, and both must be derivable.`,
+                  `İstisna hiç uygulanmıyor: görevdeki ambulans için ${q(al)} sonucunu türeten bir argüman yok. Kuralının koşulları ${q(am)} ve ${q(du)} olmalı ve ikisi de türetilebilmeli.`,
+                ),
+              };
+            const exceptionWins = r.attacks.filter((a) => exception.includes(a.attacker) && ban.includes(a.target));
+            const banAttacks = r.attacks.filter((a) => ban.includes(a.attacker) && exception.includes(a.target));
+            const base = [...exceptionWins.map((a) => attackLine(r, a)), ...banAttacks.map((a) => attackLine(r, a)), ...[...exceptionWins, ...banAttacks].filter((a) => !a.succeeds).map((a) => whyFailed(r, a))];
+            const precedence = exceptionWins.some((a) => a.succeeds) && banAttacks.length && banAttacks.every((a) => !a.succeeds);
+            if (!precedence)
+              return {
+                ok: false,
+                msg: join([...base, claimLine(r, al), tx("The exception does not take precedence over the ban yet. The text says it does: which preference expresses that?", "İstisna henüz yasağa göre öncelikli değil. Metin öyle olduğunu söylüyor: bunu hangi tercih ifade eder?")]),
+              };
+            const ok = statusOf(r, al) === "JUSTIFIED";
             return {
               ok,
               msg: join([
-                ...lines(ctx.r),
-                ...failures(ctx.r),
-                claimLine(ctx.r, al),
-                ok ? tx("The specific exception beats the general ban, as the text says.", "Metinde söylendiği gibi, özel istisna genel yasağı yeniyor.") : tx("The text gives the exception precedence. Which preference expresses that?", "Metin istisnaya öncelik veriyor. Bunu hangi tercih ifade eder?"),
+                ...base,
+                claimLine(r, al),
+                ok
+                  ? tx("The ban applies, but the exception defeats it while the ban's attack on the exception fails. So the specific exception beats the general ban, as the text says.", "Yasak uygulanıyor, ama istisna onu yeniyor ve yasağın istisnaya saldırısı başarısız oluyor. Böylece metinde söylendiği gibi özel istisna genel yasağı yeniyor.")
+                  : claimReason(r, al),
               ]),
             };
           },
@@ -1515,16 +1573,24 @@
           check(ctx) {
             const rd = w("red", ctx.lang),
               bl = w("blue", ctx.lang);
+            const r = ctx.r;
             const key = (x) => JSON.stringify(x);
             const keep = (part) => (ctx.givenDecls[part] || []).every((x) => (ctx.decls[part] || []).map(key).includes(key(x)));
             if (!keep("facts") || !keep("rules")) return { ok: false, msg: tx("Keep the two premises and the two rules. Only the conflict and the priority need repairing.", "İki öncülü ve iki kuralı koruyun. Yalnızca çatışmanın ve önceliğin düzeltilmesi gerekiyor.") };
             const cs = (ctx.decls.contraries || []).filter((x) => [x.source, x.target].includes(rd) && [x.source, x.target].includes(bl));
             const twoWay = cs.some((x) => x.symmetric) || (cs.some((x) => x.source === rd) && cs.some((x) => x.source === bl));
-            const problems = [];
-            if (!twoWay) problems.push(tx("“Cannot be both” means each colour excludes the other: the conflict must run in both directions.", "“İkisi birden olamaz” her rengin diğerini dışladığı anlamına gelir: çatışma iki yönde de işlemeli."));
-            if (!(ctx.decls.rulePrefs || []).length && !(ctx.decls.premisePrefs || []).length) problems.push(tx("The text says the camera is more reliable. Add a preference that expresses this.", "Metin kameranın daha güvenilir olduğunu söylüyor. Bunu ifade eden bir tercih ekleyin."));
-            const ok = !problems.length && statusOf(ctx.r, bl) === "JUSTIFIED" && statusOf(ctx.r, rd) === "OVERRULED";
-            return { ok, msg: join([...problems, ...lines(ctx.r), ...failures(ctx.r), claimLine(ctx.r, bl), claimLine(ctx.r, rd)]) };
+            if (!twoWay)
+              return { ok: false, msg: join([...lines(r), tx("“Cannot be both” means each colour excludes the other: the conflict must run in both directions.", "“İkisi birden olamaz” her rengin diğerini dışladığı anlamına gelir: çatışma iki yönde de işlemeli.")]) };
+            const redArgs = bearers(r, rd),
+              blueArgs = bearers(r, bl);
+            const blueOnRed = r.attacks.filter((a) => blueArgs.includes(a.attacker) && redArgs.includes(a.target));
+            const redOnBlue = r.attacks.filter((a) => redArgs.includes(a.attacker) && blueArgs.includes(a.target));
+            const base = [...blueOnRed.map((a) => attackLine(r, a)), ...redOnBlue.map((a) => attackLine(r, a)), ...[...blueOnRed, ...redOnBlue].filter((a) => !a.succeeds).map((a) => whyFailed(r, a))];
+            const camera = blueOnRed.some((a) => a.succeeds) && redOnBlue.length && redOnBlue.every((a) => !a.succeeds);
+            if (!camera)
+              return { ok: false, msg: join([...base, claimLine(r, bl), claimLine(r, rd), tx("The text says the camera is more reliable. Add a preference that makes its side win.", "Metin kameranın daha güvenilir olduğunu söylüyor. Onun tarafını kazandıran bir tercih ekleyin.")]) };
+            const ok = statusOf(r, bl) === "JUSTIFIED" && statusOf(r, rd) === "OVERRULED";
+            return { ok, msg: join([...base, claimLine(r, bl), claimLine(r, rd), ok ? tx("Each colour attacks the other, and the preference makes the camera's side win.", "Her renk diğerine saldırıyor ve tercih kameranın tarafını kazandırıyor.") : claimReason(r, bl)]) };
           },
         },
       ],
@@ -1570,7 +1636,7 @@
           kind: "label",
           goal: "grounded",
           task: tx(
-            "A harder case with ten arguments. The toy penguin is back, so one argument is defeated but later defended. On top of that, two sources disagree about whether it is {windy}, and wind would stop the bird from migrating. Label all ten arguments so that the result is the grounded labelling. The table lists each argument's number next to what it says.",
+            "A harder case with ten arguments. The toy penguin is back, so one argument is defeated but later defended. On top of that, two sources disagree about whether it is {windy}, and wind would stop the bird from migrating. Label all ten arguments so that the result is the grounded labelling.",
             "On argümanlı daha zor bir durum. Oyuncak penguen yine burada, yani bir argüman yeniliyor ama sonra yeniden savunuluyor. Üstelik iki kaynak havanın {windy} olup olmadığı konusunda farklı şeyler söylüyor ve rüzgar kuşun göç etmesini engelliyor. On argümanın hepsini etiketleyin. Sonuç temelli etiketleme olmalı.",
           ),
           given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<premise>: {toy}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]\n[<prefer_rule>: r2 > r1]\n[<defeasible> r3: {toy} => -r2]\n[<defeasible> r4: {flies} => {migrates}]\n[<premise>: {windy}]\n[<premise>: -{windy}]\n[<defeasible> r5: {windy} => -{migrates}]",
