@@ -80,8 +80,6 @@
     "The claim {c}": "{c} iddiası",
     "The {s} semantics has no extension for this theory, so no claim has a status.":
       "{s} semantiğin bu kuram için kapsamı yok, bu yüzden hiçbir iddianın durumu yok.",
-    "Replace the theory you have written? You can bring it back with “Restore previous theory”.":
-      "Yazdığınız kuramın yerine yenisi konsun mu? Eskisini “Önceki kuramı geri getir” düğmesiyle geri alabilirsiniz.",
     "Restore previous theory": "Önceki kuramı geri getir",
     "Background evaluation is not available here, so this large theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?":
       "Arka planda değerlendirme burada kullanılamıyor. Bu büyük kuram sayfanın kendisinde değerlendirilecek ve bu sırada sayfa yanıt vermeyebilir. Yine de değerlendirilsin mi?",
@@ -1591,9 +1589,6 @@
     previousText = null;
   function replaceTheory(text) {
     const current = $("source").value;
-    if (current.trim() && current !== loadedText && current !== text) {
-      if (!window.confirm(T("Replace the theory you have written? You can bring it back with “Restore previous theory”."))) return false;
-    }
     if (current.trim() && current !== text) {
       previousText = current;
       $("restore").hidden = false;
