@@ -30,9 +30,9 @@
     "Graph for the claim {c}": "{c} iddiasının grafiği",
     "Graph of the arguments that bear on this claim": "Bu iddiayla ilgili argümanların grafiği",
     "{n} arguments bear on this claim; too many to draw.":
-      "Bu iddiayla ilgili {n} argüman var; çizmek için çok fazla.",
+      "Bu iddiayla ilgili {n} argüman var. Hepsini çizmek için çok fazla.",
     "The claim's arguments with their immediate connections only: what each is directly built from, and the arguments that attack it or that it attacks. Colours show each argument's label; click one to follow its own connections.":
-      "Yalnızca iddianın argümanları ve doğrudan bağlantıları: her birinin doğrudan neyden kurulduğu ve ona saldıran ya da onun saldırdığı argümanlar. Renkler her argümanın etiketini gösterir; kendi bağlantılarını izlemek için birine tıklayın.",
+      "Yalnızca iddianın argümanları ve doğrudan bağlantıları: her birinin doğrudan neyden kurulduğu ve ona saldıran ya da onun saldırdığı argümanlar. Renkler her argümanın etiketini gösterir. Bir argümanın kendi bağlantılarını izlemek için ona tıklayın.",
     "{x} attacks {y}, but the attack fails":
       "{x}, {y} argümanına saldırır ama saldırı başarısız olur",
     " (on {w})": " ({w} üzerinden)",
@@ -44,11 +44,11 @@
     "Click a button to add a declaration to the theory, then type over its placeholders.":
       "Kurama bir bildirim eklemek için bir düğmeye tıklayın, ardından yer tutucuların üzerine yazın.",
     "Fill in the placeholders (such as <X1>); the theory is evaluated as soon as none are left. The results shown are for the previous theory.":
-      "Yer tutucuları (örneğin <X1>) doldurun; hiçbiri kalmadığında kuram değerlendirilir. Gösterilen sonuçlar önceki kurama aittir.",
+      "Yer tutucuları (örneğin <X1>) doldurun. Hiçbiri kalmadığında kuram değerlendirilir. Gösterilen sonuçlar önceki kurama aittir.",
     "the axioms contradict each other ({x} and {y}), so the results may be inconsistent; no option can repair this":
-      "aksiyomlar birbiriyle çelişiyor ({x} ve {y}), bu yüzden sonuçlar tutarsız olabilir; bunu hiçbir seçenek düzeltemez",
+      "aksiyomlar birbiriyle çelişiyor ({x} ve {y}), bu yüzden sonuçlar tutarsız olabilir. Bunu hiçbir seçenek düzeltemez",
     "a contrary targets an axiom or a strict conclusion, which ASPIC+ does not allow, so the results may be inconsistent":
-      "bir karşıtlık bir aksiyomu ya da katı bir sonucu hedefliyor; ASPIC+ buna izin vermez, bu yüzden sonuçlar tutarsız olabilir",
+      "bir karşıtlık bir aksiyomu ya da katı bir sonucu hedefliyor. ASPIC+ buna izin vermez, bu yüzden sonuçlar tutarsız olabilir",
     "{n} contrapositive(s) of strict rules are missing, so the results may be inconsistent (tick “Add contrapositives of strict rules”)":
       "katı kuralların {n} ters yönlü hâli eksik, bu yüzden sonuçlar tutarsız olabilir (“Katı kuralların ters yönlü hâllerini ekle” seçeneğini işaretleyin)",
     Premise: "Öncül",
@@ -61,7 +61,7 @@
     Contradictory: "Çelişik",
     fails: "başarısız",
     "There is no {s} extension for this theory; the labels shown are the grounded ones.":
-      "Bu kuram için {s} kapsam yok; gösterilen etiketler temelli olanlardır.",
+      "Bu kuram için {s} kapsam yok. Gösterilen etiketler temelli olanlardır.",
     "In the grounded extension:": "Temelli kapsamda:",
     grounded: "temelli",
     complete: "tam",
@@ -83,16 +83,16 @@
     "The grounded extension contains an argument for it: ":
       "Temelli kapsam onun için bir argüman içeriyor: ",
     "Every one of the {n} extensions contains an argument for it, not necessarily the same one. ":
-      "{n} kapsamın her biri onun için bir argüman içeriyor; her seferinde aynısı olmak zorunda değil. ",
+      "{n} kapsamın her biri onun için bir argüman içeriyor. Bu argüman her seferinde aynı olmak zorunda değil. ",
     "In this extension: ": "Bu kapsamda: ",
     "Accepted in {k} of {n} extensions (": "{n} kapsamın {k} tanesinde kabul edildi (",
     "); in the others no argument for it is accepted.":
-      "); diğerlerinde onun için hiçbir argüman kabul edilmedi.",
+      "). Diğerlerinde onun için hiçbir argüman kabul edilmedi.",
     "In every extension, every argument for it is defeated. In this extension: ":
       "Her kapsamda, onun için olan her argüman yenildi. Bu kapsamda: ",
     " by ": " şunun tarafından: ",
     "No extension accepts it, but not every argument for it is always defeated. In this extension: ":
-      "Hiçbir kapsam onu kabul etmiyor, ama onun için olan her argüman her zaman yenilmiyor. Bu kapsamda: ",
+      "Hiçbir kapsam onu kabul etmiyor, ama onun için olan argümanların hepsi her kapsamda yenilmiyor. Bu kapsamda: ",
     "undecided ": "kararsız ",
     "In the grounded extension, every argument for it is defeated: ":
       "Temelli kapsamda, onun için olan her argüman yenildi: ",
@@ -100,7 +100,7 @@
       "Temelli kapsam onu kabul etmiyor, ama onun için olan her argüman yenilmiş değil: ",
     "defeated ": "yenilmiş ",
     "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try grounded semantics or a smaller theory.":
-      "Arka plandaki değerlendirme beklenmedik biçimde durdu; büyük olasılıkla tarayıcının belleği yetmedi: bu kuramın seçilen semantik için çok fazla kapsamı var. Temelli semantiği ya da daha küçük bir kuramı deneyin.",
+      "Arka plandaki değerlendirme beklenmedik biçimde durdu. Büyük olasılıkla tarayıcının belleği yetmedi, çünkü bu kuramın seçilen semantik için çok fazla kapsamı var. Temelli semantiği ya da daha küçük bir kuramı deneyin.",
     Introduction: "Giriş",
     Workspace: "Çalışma alanı",
     Learn: "Öğren",
@@ -121,14 +121,14 @@
     "How to write a theory": "Kuram nasıl yazılır",
     Semantics: "Semantik",
     "Grounded: one cautious answer": "Temelli: tek ve temkinli yanıt",
-    "Preferred: every maximal defensible view":
-      "Tercih edilen: savunulabilir en geniş görüşlerin her biri",
-    "Stable: views that defeat everything outside": "Kararlı: dışarıdaki her şeyi yenen görüşler",
-    "Complete: every self-consistent view": "Tam: kendi içinde tutarlı her görüş",
+    "Preferred: every view that defends itself and cannot be extended":
+      "Tercih edilen: kendini savunan ve daha fazla genişletilemeyen her görüş",
+    "Stable: conflict-free views that defeat everything outside": "Kararlı: dışarıdaki her şeyi yenen çatışmasız görüşler",
+    "Complete: every view that defends itself and includes all it defends": "Tam: kendini savunan ve savunduğu her şeyi içeren her görüş",
     "Comparing arguments": "Argümanların karşılaştırılması",
-    "Last rule decides": "Son kural belirler",
-    "Weakest step decides": "En zayıf adım belirler",
-    "Comparing sets": "Kümelerin karşılaştırılması",
+    "Last link: last defeasible rules decide": "Son halka: son feshedilebilir kurallar belirler",
+    "Weakest link: weakest step decides": "En zayıf halka: en zayıf adım belirler",
+    "Comparing sets": "Küme sıralaması",
     Elitist: "Elitist",
     Democratic: "Demokratik",
     "Add contrapositives of strict rules": "Katı kuralların ters yönlü hâllerini ekle",
@@ -149,13 +149,13 @@
     Claim: "İddia",
     Status: "Durum",
     "Accepted in": "Kabul oranı",
-    "Justified: accepted in every extension. Defensible: in some. Overruled: always defeated. Undecided: neither.":
-      "Gerekçelendirilmiş: her kapsamda kabul edilir. Savunulabilir: bazılarında. Reddedilmiş: her zaman yenilir. Kararsız: hiçbiri.",
+    "Justified: accepted in every extension. Defensible: in some. Overruled: every argument for it is defeated in every extension. Undecided: none of these.":
+      "Gerekçelendirilmiş: her kapsamda kabul edilir. Savunulabilir: bazılarında kabul edilir. Reddedilmiş: onun için kurulan her argüman her kapsamda yenilir. Kararsız: bunların hiçbiri.",
     Argument: "Argüman",
     "Select an argument in the graph or the list.": "Grafikten veya listeden bir argüman seçin.",
     "All arguments, grouped by claim": "Tüm argümanlar, iddiaya göre gruplanmış",
     "An argument is a derivation tree. Each different combination of sub-arguments is its own argument, so one claim can have several.":
-      "Argüman bir türetme ağacıdır. Alt argümanların her farklı birleşimi ayrı bir argümandır; bu yüzden bir iddianın birden fazla argümanı olabilir.",
+      "Argüman bir türetme ağacıdır. Alt argümanların her farklı birleşimi ayrı bir argümandır. Bu yüzden bir iddianın birden fazla argümanı olabilir.",
     Justified: "Gerekçelendirilmiş",
     Defensible: "Savunulabilir",
     Overruled: "Reddedilmiş",
@@ -171,7 +171,7 @@
     "Grounded extension": "Temelli kapsam",
     "Extension {n}": "Kapsam {n}",
     "{n} arguments are too many to draw one by one; showing claims and rules.":
-      "{n} argüman tek tek çizmek için çok fazla; iddialar ve kurallar gösteriliyor.",
+      "{n} argüman tek tek çizmek için çok fazla. Bu yüzden iddialar ve kurallar gösteriliyor.",
     "Graph of claims, rules and defeats": "İddialar, kurallar ve yenilgiler grafiği",
     "{p}% of extensions": "%{p}",
     "{x} undercuts rule {r}": "{x}, {r} kuralına saldırır",
@@ -184,21 +184,19 @@
     "defeasible rules: {list}": "feshedilebilir kurallar: {list}",
     "grounded: {label}": "temelli: {label}",
     " (settled in round {n})": " ({n}. turda belirlendi)",
-    "strength: {v} (h-categorizer; 1 means unattacked)":
-      "güç: {v} (h-categorizer; 1 saldırıya uğramamış demektir)",
+    "strength: {v} (h-categorizer; 1 means nothing defeats it)":
+      "güç: {v} (h-categorizer, 1 onu hiçbir şeyin yenmediği anlamına gelir)",
     "Nothing defeats it.": "Hiçbir argüman onu yenmiyor.",
     "Accepted because every defeater is itself defeated by an accepted argument: ":
       "Kabul edildi, çünkü onu yenen her argüman kabul edilmiş bir argüman tarafından yeniliyor: ",
     " is answered by ": " → yanıtlayan: ",
     "Defeated by accepted argument(s): ": "Kabul edilmiş argüman(lar) tarafından yenildi: ",
-    "Undecided: these defeaters are not themselves defeated: ":
-      "Kararsız: onu yenen şu argümanlar kendileri yenilmiyor: ",
     "{n} attack(s) on it fail because the attacker is weaker under the chosen preference setting.":
       "Ona yönelik {n} saldırı başarısız, çünkü seçilen tercih ayarında saldıran daha zayıf.",
     "Link copied. Anyone opening it sees this theory and these settings.":
       "Bağlantı kopyalandı. Açan herkes bu kuramı ve bu ayarları görür.",
     "Link is in the address bar; copy it from there.":
-      "Bağlantı adres çubuğunda; oradan kopyalayın.",
+      "Bağlantı adres çubuğunda. Oradan kopyalayabilirsiniz.",
     " (random theory, seed {n})": " (rastgele kuram, tohum {n})",
     " · skipped seeds too large for the browser: {list}":
       " · tarayıcı için çok büyük olduğu için atlanan tohumlar: {list}",
@@ -218,8 +216,8 @@
     "{n} arguments and {d} defeats": "{n} argüman ve {d} başarılı saldırı",
   };
   const SYNTAX = {
-    ENG: "[premise: bird]                 can be attacked\n[axiom: penguin]                cannot be attacked\n[defeasible r1: bird => flies]  usually holds\n[strict s1: penguin -> bird]    always holds\n[defeasible r2: penguin => -flies]\n[prefer_rule: r2 > r1]          r2 beats r1\n[prefer_premise: a > b]\n[contrary: x ^ y]               x attacks y one way (premises and defeasible\n                                conclusions only), whatever the preferences\n[contradictory: x ^ y]          x and y attack each other; preferences decide\n[defeasible r3: ill => -r1]     attacks rule r1 itself",
-    TUR: "[öncül: kuş]                       saldırıya açık\n[aksiyom: penguen]                 saldırıya kapalı\n[feshedilebilir r1: kuş => uçar]   genellikle geçerli\n[katı s1: penguen -> kuş]          her zaman geçerli\n[feshedilebilir r2: penguen => -uçar]\n[kural_tercihi: r2 > r1]           r2, r1'den güçlü\n[öncül_tercihi: a > b]\n[karşıt: x ^ y]                    x, y'ye tek yönlü saldırır (yalnızca öncüllere\n                                   ve feshedilebilir sonuçlara); tercihler bunu değiştirmez\n[çelişik: x ^ y]                   x ve y birbirine saldırır; tercihler belirler\n[feshedilebilir r3: hasta => -r1]  r1 kuralının kendisine saldırır",
+    ENG: "[premise: bird]                 can be attacked\n[axiom: penguin]                cannot be attacked\n[defeasible r1: bird => flies]  usually holds\n[strict s1: penguin -> bird]    always holds\n[defeasible r2: penguin => -flies]\n[prefer_rule: r2 > r1]          r2 beats r1\n[prefer_premise: a > b]\n[contrary: x ^ y]               x attacks y one way (premises and defeasible\n                                conclusions only), whatever the preferences\n[contradictory: x ^ y]          x and y attack each other (the same targets);\n                                preferences decide\n[defeasible r3: ill => -r1]     attacks rule r1 itself",
+    TUR: "[öncül: kuş]                       saldırıya açık\n[aksiyom: penguen]                 saldırıya kapalı\n[feshedilebilir r1: kuş => uçar]   genellikle geçerli\n[katı s1: penguen -> kuş]          her zaman geçerli\n[feshedilebilir r2: penguen => -uçar]\n[kural_tercihi: r2 > r1]           r2, r1'den güçlü\n[öncül_tercihi: a > b]\n[karşıt: x ^ y]                    x, y'ye tek yönlü saldırır (yalnızca öncüllere\n                                   ve feshedilebilir sonuçlara). Tercihler bunu değiştirmez\n[çelişik: x ^ y]                   x ve y birbirine saldırır (aynı hedeflere).\n                                   Tercihler belirler\n[feshedilebilir r3: hasta => -r1]  r1 kuralının kendisine saldırır",
   };
   const KEYWORDS = [
     ["premise", "öncül"],
@@ -356,9 +354,9 @@
       src: "[axiom: a]\n[defeasible low: a => b]\n[defeasible high: b => p]\n[defeasible mid: a => -p]\n[prefer_rule: high > mid]\n[prefer_rule: mid > low]\n",
       src_tr:
         "[aksiyom: a]\n[feshedilebilir dusuk: a => b]\n[feshedilebilir yuksek: b => p]\n[feshedilebilir orta: a => -p]\n[kural_tercihi: yuksek > orta]\n[kural_tercihi: orta > dusuk]\n",
-      note: "The argument for p ends in a strong rule but contains a weak one. With “Last rule decides”, p wins; switch to “Weakest step decides” and -p wins.",
+      note: "The argument for p ends in a strong rule but contains a weak one. With “Last link: last defeasible rules decide”, p wins; switch to “Weakest link: weakest step decides” and -p wins.",
       note_tr:
-        "p argümanı güçlü bir kuralla biter ama zayıf bir kural içerir. “Son kural belirler” ile p kazanır; “En zayıf adım belirler” seçeneğine geçin, -p kazanır.",
+        "p argümanı güçlü bir kuralla biter ama zayıf bir kural içerir. “Son halka” ile p kazanır. “En zayıf halka” seçeneğine geçtiğinizde -p kazanır.",
       settings: {
         ordering: "last_link",
       },
@@ -1372,7 +1370,7 @@
           : ""),
     );
     facts.push(
-      T("strength: {v} (h-categorizer; 1 means unattacked)", {
+      T("strength: {v} (h-categorizer; 1 means nothing defeats it)", {
         v: a.strength.toFixed(3),
       }),
     );

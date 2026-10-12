@@ -15,11 +15,11 @@ description: "Glossary of ArgForge terms in English and Turkish."
         <dl class="gloss">
           <div class="entry" id="literal">
             <dt><span class="en">Literal <span class='other'>· Atomik ifade</span></span><span class="tr">Atomik ifade <span class='other'>· Literal</span></span> <span class='other'><code>bird</code>, <code>-flies</code></span></dt>
-            <dd><p class="en">The basic statement of a theory: a name such as <code>bird</code>, possibly negated. ArgForge never looks at what the name means, so <code>fever</code> and <code>has_fever</code> are unrelated unless a rule connects them.</p><p class="tr">Bir kuramın en temel ifadesi: <code>bird</code> gibi bir ad ya da onun olumsuzu. ArgForge adın ne anlama geldiğine bakmaz; bu yüzden bir kural aralarında bağ kurmadıkça <code>fever</code> ile <code>has_fever</code> birbirinden bağımsızdır.</p></dd>
+            <dd><p class="en">The basic statement of a theory: a name such as <code>bird</code>, possibly negated. ArgForge never looks at what the name means, so <code>fever</code> and <code>has_fever</code> are unrelated unless a rule connects them.</p><p class="tr">Bir kuramın en temel ifadesi: <code>bird</code> gibi bir ad ya da onun olumsuzu. ArgForge adın ne anlama geldiğine bakmaz. Bu yüzden bir kural aralarında bağ kurmadıkça <code>fever</code> ile <code>has_fever</code> birbirinden bağımsızdır.</p></dd>
           </div>
           <div class="entry" id="negation">
             <dt><span class="en">Negation <span class='other'>· Olumsuzlama</span></span><span class="tr">Olumsuzlama <span class='other'>· Negation</span></span> <span class='other'><code>-x</code></span></dt>
-            <dd><p class="en">Writing a minus sign in front of a literal turns it into its opposite: <code>-x</code> means “not x”. A literal and its negation always attack each other.</p><p class="tr">Bir ifadenin önüne eksi işareti koymak onu tersine çevirir: <code>-x</code>, “x değil” demektir. Bir ifade ile olumsuzu her zaman birbirine saldırır.</p></dd>
+            <dd><p class="en">Writing a minus sign in front of a literal turns it into its opposite: <code>-x</code> means “not x”. Arguments for a literal and for its negation conflict: each attacks the other wherever the other can be attacked, at a premise or at a conclusion reached by a defeasible rule.</p><p class="tr">Bir ifadenin önüne eksi işareti koymak onu tersine çevirir: <code>-x</code>, “x değil” demektir. Bir ifade ile olumsuzu için kurulan argümanlar çatışır. Her biri, diğerinin saldırıya açık olduğu yerde ona saldırır: bir öncülde ya da feshedilebilir bir kuralla varılan bir sonuçta.</p></dd>
           </div>
           <div class="entry" id="premise">
             <dt><span class="en">Premise <span class='other'>· Öncül</span></span><span class="tr">Öncül <span class='other'>· Premise</span></span> <span class='other'><code>[premise: x]</code></span></dt>
@@ -35,7 +35,7 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="strict-rule">
             <dt><span class="en">Strict rule <span class='other'>· Katı kural</span></span><span class="tr">Katı kural <span class='other'>· Strict rule</span></span> <span class='other'><code>[strict s1: a -&gt; b]</code></span></dt>
-            <dd><p class="en">A rule without exceptions. Its conclusion cannot be attacked directly; only what it is built on can.</p><p class="tr">İstisnası olmayan kural. Sonucuna doğrudan saldırılamaz; yalnızca dayandığı kısımlara saldırılabilir.</p></dd>
+            <dd><p class="en">A rule without exceptions. Its conclusion cannot be rebutted directly. Only the premises and defeasible steps it is built on can be attacked.</p><p class="tr">İstisnası olmayan kural. Sonucuna doğrudan saldırılamaz. Yalnızca dayandığı öncüllere ve feshedilebilir adımlara saldırılabilir.</p></dd>
           </div>
           <div class="entry" id="defeasible-rule">
             <dt><span class="en">Defeasible rule <span class='other'>· Feshedilebilir kural</span></span><span class="tr">Feshedilebilir kural <span class='other'>· Defeasible rule</span></span> <span class='other'><code>[defeasible r1: a =&gt; b]</code></span></dt>
@@ -51,11 +51,11 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="contrary">
             <dt><span class="en">Contrary <span class='other'>· Karşıt</span></span><span class="tr">Karşıt <span class='other'>· Contrary</span></span> <span class='other'><code>[contrary: x ^ y]</code></span></dt>
-            <dd><p class="en">x attacks y, but y does not attack x. This attack always succeeds, whatever the preferences.</p><p class="tr">x, y'ye saldırır ama y, x'e saldırmaz. Bu saldırı, tercihler ne olursa olsun her zaman başarılı olur.</p></dd>
+            <dd><p class="en">x attacks y, but y does not attack x. The attack lands wherever y is a premise or the conclusion of a defeasible rule, and it succeeds whatever the preferences.</p><p class="tr">x, y'ye saldırır ama y, x'e saldırmaz. Saldırı, y'nin bir öncül olduğu ya da feshedilebilir bir kuralla varıldığı her yerde gerçekleşir ve tercihler ne olursa olsun başarılı olur.</p></dd>
           </div>
           <div class="entry" id="contradictory">
             <dt><span class="en">Contradictory <span class='other'>· Çelişik</span></span><span class="tr">Çelişik <span class='other'>· Contradictory</span></span> <span class='other'><code>[contradictory: x ^ y]</code></span></dt>
-            <dd><p class="en">x and y rule each other out, just like x and -x. Each attacks the other, and preferences decide which attack succeeds.</p><p class="tr">x ile y, tıpkı x ile -x gibi birbirini dışlar. İkisi de birbirine saldırır; hangi saldırının başarılı olacağına tercihler karar verir.</p></dd>
+            <dd><p class="en">x and y rule each other out, just like x and -x. Each attacks the other wherever the other is a premise or the conclusion of a defeasible rule, and preferences decide which attacks succeed.</p><p class="tr">x ile y, tıpkı x ile -x gibi birbirini dışlar. Her biri, diğerinin öncül olduğu ya da feshedilebilir bir kuralla varıldığı yerde ona saldırır. Hangi saldırıların başarılı olacağına tercihler karar verir.</p></dd>
           </div>
           <div class="entry" id="undercutter">
             <dt><span class="en">Undercutting rule <span class='other'>· Kurala saldıran kural</span></span><span class="tr">Kurala saldıran kural <span class='other'>· Undercutting rule</span></span> <span class='other'><code>[defeasible r3: u =&gt; -r1]</code></span></dt>
@@ -100,7 +100,7 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="defeat">
             <dt><span class="en">Defeat <span class='other'>· Yenilgi (başarılı saldırı)</span></span><span class="tr">Yenilgi (başarılı saldırı) <span class='other'>· Defeat</span></span></dt>
-            <dd><p class="en">An attack that still succeeds once preferences are taken into account. Only defeats count when extensions are computed; the red arrows in the graph are defeats.</p><p class="tr">Tercihler hesaba katıldıktan sonra da başarılı olan saldırı. Kapsamlar hesaplanırken yalnızca yenilgiler dikkate alınır; grafikteki kırmızı oklar yenilgileri gösterir.</p></dd>
+            <dd><p class="en">An attack that still succeeds once preferences are taken into account. Only defeats count when extensions are computed; the red arrows in the graph are defeats.</p><p class="tr">Tercihler hesaba katıldıktan sonra da başarılı olan saldırı. Kapsamlar hesaplanırken yalnızca yenilgiler dikkate alınır. Grafikteki kırmızı oklar yenilgileri gösterir.</p></dd>
           </div>
           <div class="entry" id="failed-attack">
             <dt><span class="en">Failed attack <span class='other'>· Başarısız saldırı</span></span><span class="tr">Başarısız saldırı <span class='other'>· Failed attack</span></span></dt>
@@ -112,12 +112,12 @@ description: "Glossary of ArgForge terms in English and Turkish."
         <h2><span class="en">Comparing arguments</span><span class="tr">Argümanların karşılaştırılması</span></h2>
         <dl class="gloss">
           <div class="entry" id="last-link">
-            <dt><span class="en">Last link <span class='other'>· Son halka</span></span><span class="tr">Son halka <span class='other'>· Last link</span></span> <span class='other'>Last rule decides / Son kural belirler</span></dt>
-            <dd><p class="en">Two arguments are compared by their last defeasible rules. If neither uses a defeasible rule, their premises are compared instead.</p><p class="tr">İki argüman son feshedilebilir kurallarına göre karşılaştırılır. İkisi de feshedilebilir kural kullanmıyorsa öncüllerine bakılır.</p></dd>
+            <dt><span class="en">Last link <span class='other'>· Son halka</span></span><span class="tr">Son halka <span class='other'>· Last link</span></span> <span class='other'>Last defeasible rules decide / Son feshedilebilir kurallar belirler</span></dt>
+            <dd><p class="en">Two arguments are compared by their last defeasible rules: usually the rule of the final step, or, when that step is strict, the last defeasible rules below it. If neither argument uses a defeasible rule, their premises are compared instead.</p><p class="tr">İki argüman son feshedilebilir kurallarına göre karşılaştırılır. Bu genellikle son adımın kuralıdır. Son adım katıysa onun altındaki son feshedilebilir kurallara bakılır. İkisi de feshedilebilir kural kullanmıyorsa öncüllerine bakılır.</p></dd>
           </div>
           <div class="entry" id="weakest-link">
             <dt><span class="en">Weakest link <span class='other'>· En zayıf halka</span></span><span class="tr">En zayıf halka <span class='other'>· Weakest link</span></span> <span class='other'>Weakest step decides / En zayıf adım belirler</span></dt>
-            <dd><p class="en">Two arguments are compared by all the defeasible rules and premises they use. An argument is only as strong as its weakest step.</p><p class="tr">İki argüman kullandıkları bütün feshedilebilir kurallara ve öncüllere göre karşılaştırılır. Bir argüman, en zayıf adımı kadar güçlüdür.</p></dd>
+            <dd><p class="en">If both arguments use only strict rules, their premises are compared. If both use only axioms, their defeasible rules are compared. Otherwise an argument counts as weaker only if both its premises and its defeasible rules are weaker. An argument is only as strong as its weakest step.</p><p class="tr">İki argüman da yalnızca katı kurallar kullanıyorsa öncülleri karşılaştırılır. İkisi de yalnızca aksiyomlara dayanıyorsa feshedilebilir kuralları karşılaştırılır. Diğer durumlarda bir argüman, ancak hem öncülleri hem de feshedilebilir kuralları daha zayıfsa daha zayıf sayılır. Bir argüman, en zayıf adımı kadar güçlüdür.</p></dd>
           </div>
           <div class="entry" id="elitist">
             <dt><span class="en">Elitist comparison <span class='other'>· Elitist karşılaştırma</span></span><span class="tr">Elitist karşılaştırma <span class='other'>· Elitist comparison</span></span> <span class='other'>Elitist</span></dt>
@@ -146,15 +146,15 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="complete">
             <dt><span class="en">Complete <span class='other'>· Tam</span></span><span class="tr">Tam <span class='other'>· Complete</span></span></dt>
-            <dd><p class="en">An extension that defends all of its members and also contains every argument it defends. There can be several.</p><p class="tr">Bütün üyelerini savunan ve savunduğu her argümanı da içeren kapsam. Birden fazla olabilir.</p></dd>
+            <dd><p class="en">A conflict-free set that defends all of its members and also contains every argument it defends. There can be several.</p><p class="tr">Çatışmasız olan, bütün üyelerini savunan ve savunduğu her argümanı da içeren küme. Birden fazla olabilir.</p></dd>
           </div>
           <div class="entry" id="preferred">
             <dt><span class="en">Preferred <span class='other'>· Tercih edilen</span></span><span class="tr">Tercih edilen <span class='other'>· Preferred</span></span></dt>
-            <dd><p class="en">A complete extension that cannot be enlarged any further. Several preferred extensions mean several defensible points of view.</p><p class="tr">Daha fazla genişletilemeyen tam kapsam. Birden fazla tercih edilen kapsam, birden fazla savunulabilir bakış açısı olduğunu gösterir.</p></dd>
+            <dd><p class="en">A complete extension that no other complete extension contains, so it cannot be enlarged while staying complete. Several preferred extensions mean several defensible points of view.</p><p class="tr">Başka hiçbir tam kapsamın içinde kalmayan, yani tam kalarak daha fazla genişletilemeyen tam kapsam. Birden fazla tercih edilen kapsam, birden fazla savunulabilir bakış açısı olduğunu gösterir.</p></dd>
           </div>
           <div class="entry" id="stable">
             <dt><span class="en">Stable <span class='other'>· Kararlı</span></span><span class="tr">Kararlı <span class='other'>· Stable</span></span></dt>
-            <dd><p class="en">An extension that defeats every argument outside it. A theory may have none, for example when attacks form an odd cycle.</p><p class="tr">Dışında kalan her argümanı yenen kapsam. Bir kuramın hiç kararlı kapsamı olmayabilir; örneğin saldırılar tek sayıda argümandan oluşan bir döngü kurduğunda.</p></dd>
+            <dd><p class="en">A conflict-free set that defeats every argument outside it. A theory may have none, for example when the defeats form a cycle of odd length that nothing outside the cycle breaks.</p><p class="tr">Çatışmasız olan ve dışında kalan her argümanı yenen küme. Bir kuramın hiç kararlı kapsamı olmayabilir. Örneğin yenilgiler, dışarıdan hiçbir şeyin bozmadığı tek uzunlukta bir döngü oluşturduğunda böyle olur.</p></dd>
           </div>
           <div class="entry" id="defended">
             <dt><span class="en">Defended <span class='other'>· Savunulmuş</span></span><span class="tr">Savunulmuş <span class='other'>· Defended</span></span></dt>
@@ -171,7 +171,7 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="justified">
             <dt><span class="en">Justified <span class='other'>· Gerekçelendirilmiş</span></span><span class="tr">Gerekçelendirilmiş <span class='other'>· Justified</span></span></dt>
-            <dd><p class="en">Every extension contains an argument for the claim, though not necessarily the same one.</p><p class="tr">Her kapsam iddia için bir argüman içerir; ancak bu argüman her seferinde aynı olmak zorunda değildir.</p></dd>
+            <dd><p class="en">There is at least one extension, and every extension contains an argument for the claim, though not necessarily the same one.</p><p class="tr">En az bir kapsam vardır ve her kapsam iddia için bir argüman içerir. Bu argüman her seferinde aynı olmak zorunda değildir.</p></dd>
           </div>
           <div class="entry" id="defensible">
             <dt><span class="en">Defensible <span class='other'>· Savunulabilir</span></span><span class="tr">Savunulabilir <span class='other'>· Defensible</span></span></dt>
@@ -179,15 +179,15 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="overruled">
             <dt><span class="en">Overruled <span class='other'>· Reddedilmiş</span></span><span class="tr">Reddedilmiş <span class='other'>· Overruled</span></span></dt>
-            <dd><p class="en">In every extension, every argument for the claim is defeated.</p><p class="tr">Her kapsamda, iddia için kurulan her argüman yenilmiştir.</p></dd>
+            <dd><p class="en">In every extension, every argument for the claim is defeated by a member of that extension.</p><p class="tr">Her kapsamda, iddia için kurulan her argüman o kapsamın bir üyesi tarafından yenilir.</p></dd>
           </div>
           <div class="entry" id="undecided">
             <dt><span class="en">Undecided (claim) <span class='other'>· Kararsız (iddia)</span></span><span class="tr">Kararsız (iddia) <span class='other'>· Undecided (claim)</span></span></dt>
-            <dd><p class="en">No extension accepts the claim, yet it is not defeated everywhere either.</p><p class="tr">Hiçbir kapsam iddiayı kabul etmez, ama iddia her yerde yenilmiş de değildir.</p></dd>
+            <dd><p class="en">No extension contains an argument for the claim, but in at least one extension some argument for it is not defeated.</p><p class="tr">Hiçbir kapsam iddia için bir argüman içermez, ama en az bir kapsamda iddia için kurulan bir argüman yenilmez.</p></dd>
           </div>
           <div class="entry" id="no-extension">
             <dt><span class="en">No extension <span class='other'>· Kapsam yok</span></span><span class="tr">Kapsam yok <span class='other'>· No extension</span></span></dt>
-            <dd><p class="en">The chosen semantics has no extension at all for this theory, which can happen with stable semantics. The grounded labels are shown instead.</p><p class="tr">Seçilen semantiğin bu kuram için hiç kapsamı yoktur; kararlı semantikte bu mümkündür. Bunun yerine temelli etiketler gösterilir.</p></dd>
+            <dd><p class="en">The chosen semantics has no extension at all for this theory, which can happen with stable semantics. The grounded labels are shown instead.</p><p class="tr">Seçilen semantiğin bu kuram için hiç kapsamı yoktur. Kararlı semantikte bu mümkündür. Bunun yerine temelli etiketler gösterilir.</p></dd>
           </div>
           <div class="entry" id="accepted-in">
             <dt><span class="en">Accepted in <span class='other'>· Kabul oranı</span></span><span class="tr">Kabul oranı <span class='other'>· Accepted in</span></span></dt>
@@ -195,11 +195,11 @@ description: "Glossary of ArgForge terms in English and Turkish."
           </div>
           <div class="entry" id="grounded-round">
             <dt><span class="en">Grounded round <span class='other'>· Temelli tur</span></span><span class="tr">Temelli tur <span class='other'>· Grounded round</span></span></dt>
-            <dd><p class="en">The step in which an argument's grounded label was settled. Round 0 means that nothing defeats it; a higher round means its defence needed more rounds of attack and counter-attack.</p><p class="tr">Bir argümanın temelli etiketinin hangi adımda kesinleştiğini gösterir. 0. tur, onu hiçbir şeyin yenmediği anlamına gelir; daha yüksek bir tur, savunmasının daha fazla saldırı ve karşı saldırı turu gerektirdiğini gösterir.</p></dd>
+            <dd><p class="en">The step in which an argument's grounded label was settled. Round 0 means that nothing defeats it. A higher round means that its label was settled only after more rounds of attack and counter-attack.</p><p class="tr">Bir argümanın temelli etiketinin hangi adımda kesinleştiğini gösterir. 0. tur, onu hiçbir şeyin yenmediği anlamına gelir. Daha yüksek bir tur, etiketinin ancak daha fazla saldırı ve karşı saldırı turundan sonra kesinleştiğini gösterir.</p></dd>
           </div>
           <div class="entry" id="strength">
             <dt><span class="en">Strength <span class='other'>· Güç</span></span><span class="tr">Güç <span class='other'>· Strength</span></span></dt>
-            <dd><p class="en">A score between 0 and 1 (the h-categorizer): 1 / (1 + the sum of the strengths of the arguments that defeat it). 1 means nothing defeats the argument; a single undefeated defeater brings it down to 0.5. Strength is not the same as being accepted.</p><p class="tr">0 ile 1 arasında bir puan (h-categorizer): 1 / (1 + argümanı yenenlerin güçlerinin toplamı). 1, argümanı hiçbir şeyin yenmediği anlamına gelir; yenilmemiş tek bir yenen bu değeri 0,5'e düşürür. Güç, kabul edilmiş olmakla aynı şey değildir.</p></dd>
+            <dd><p class="en">A score between 0 and 1 (the h-categorizer): 1 / (1 + the sum of the strengths of the arguments that defeat it). 1 means nothing defeats the argument. A single undefeated defeater brings it down to 0.5. Strength is not the same as being accepted.</p><p class="tr">0 ile 1 arasında bir puan (h-categorizer): 1 / (1 + argümanı yenenlerin güçlerinin toplamı). 1, argümanı hiçbir şeyin yenmediği anlamına gelir. Yenilmemiş tek bir yenen bu değeri 0,5'e düşürür. Güç, kabul edilmiş olmakla aynı şey değildir.</p></dd>
           </div>
         </dl>
       </section>

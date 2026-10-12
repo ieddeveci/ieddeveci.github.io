@@ -43,16 +43,16 @@ workspace: true
             ><span data-t>Semantics</span>
             <select id="semantics">
               <option value="grounded" data-t>Grounded: one cautious answer</option>
-              <option value="preferred" data-t>Preferred: every maximal defensible view</option>
-              <option value="stable" data-t>Stable: views that defeat everything outside</option>
-              <option value="complete" data-t>Complete: every self-consistent view</option>
+              <option value="preferred" data-t>Preferred: every view that defends itself and cannot be extended</option>
+              <option value="stable" data-t>Stable: conflict-free views that defeat everything outside</option>
+              <option value="complete" data-t>Complete: every view that defends itself and includes all it defends</option>
             </select>
           </label>
           <label
             ><span data-t>Comparing arguments</span>
             <select id="ordering">
-              <option value="last_link" data-t>Last rule decides</option>
-              <option value="weakest_link" data-t>Weakest step decides</option>
+              <option value="last_link" data-t>Last link: last defeasible rules decide</option>
+              <option value="weakest_link" data-t>Weakest link: weakest step decides</option>
             </select>
           </label>
           <label
@@ -116,8 +116,7 @@ workspace: true
           <tbody></tbody>
         </table>
         <p class="note" data-t>
-          Justified: accepted in every extension. Defensible: in some. Overruled: always defeated.
-          Undecided: neither.
+          Justified: accepted in every extension. Defensible: in some. Overruled: every argument for it is defeated in every extension. Undecided: none of these.
         </p>
       </section>
 
