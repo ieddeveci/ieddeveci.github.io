@@ -274,6 +274,30 @@
     { value: "-q", label: tx("only “-q”", "yalnızca “-q”") },
   ];
 
+  const conc = (r, i) => r.arguments[typeof i === "number" ? i : r.arguments.findIndex((a) => a.key === i)].conclusion;
+  const family = (r) => r.extensions.map((e) => "{" + [...e].map((i) => conc(r, i)).sort().join(", ") + "}");
+  const familyText = (r, lang) => {
+    const f = family(r).map((x) => (x === "{}" ? (lang === "tr" ? "boş küme {}" : "the empty set {}") : x));
+    if (!f.length) return lang === "tr" ? "hiç kapsam yok" : "no extension";
+    return f.join(lang === "tr" ? " ve " : " and ");
+  };
+  const sameFamily = (r1, r2) => family(r1).slice().sort().join("|") === family(r2).slice().sort().join("|");
+  const countAnswer = (r) => ["none", "one", "two"][Math.min(r.extensions.length, 2)];
+  const COUNT_CHOICES = [
+    { value: "none", label: tx("none", "hiç yok") },
+    { value: "one", label: tx("one", "bir tane") },
+    { value: "two", label: tx("two", "iki tane") },
+  ];
+  function cycleOf(ctx, names) {
+    const edges = (ctx.decls.contraries || []).filter((x) => !x.symmetric && names.includes(x.source) && names.includes(x.target));
+    const next = {};
+    for (const e of edges) (next[e.source] = next[e.source] || []).push(e.target);
+    const walk = (start, at, seen) => {
+      if (seen.length === names.length) return (next[at] || []).includes(start);
+      return (next[at] || []).some((n) => !seen.includes(n) && walk(start, n, [...seen, n]));
+    };
+    return walk(names[0], names[0], [names[0]]);
+  }
   const SYNTAX = [
     [tx("Premise", "Öncül"), "[<premise>: {rain}]", tx("a statement that can be attacked", "saldırıya açık bir ifade")],
     [tx("Axiom", "Aksiyom"), "[<axiom>: {rain}]", tx("a statement that cannot be attacked", "saldırılamayan bir ifade")],
@@ -908,6 +932,58 @@
             );
           },
         },
+      ],
+    },
+    {
+      id: "cycles",
+      title: tx("Odd and even cycles", "Tek ve çift döngüler"),
+      intro: tx(
+        "Every stable extension is also a preferred extension, but a stable extension must do more: it must defeat every argument outside it. The two semantics therefore differ only when a preferred extension leaves an argument outside that it does not defeat. In a finite framework that can only happen when the successful attacks form a cycle of odd length. An even cycle on its own can be split: take every other argument and you defeat all the rest. An odd cycle cannot be split this way, so one argument is always left over. This is also why the two usually agree: most conflicts are two-way, which makes cycles of length two, and a preference often turns a two-way attack into a one-way defeat, which removes that cycle. Undercuts and one-way contraries, however, can still form odd cycles.",
+        "Her kararlı kapsam aynı zamanda tercih edilen bir kapsamdır, ama kararlı kapsamdan daha fazlası beklenir: dışında kalan her argümanı yenmelidir. Bu yüzden iki semantik ancak tercih edilen bir kapsam, dışında bıraktığı bir argümanı yenmediğinde birbirinden ayrılır. Sonlu bir çerçevede bu yalnızca başarılı saldırılar tek uzunlukta bir döngü oluşturduğunda olabilir. Tek başına duran çift uzunluktaki bir döngü ikiye bölünebilir: argümanları birer atlayarak seçerseniz geri kalanların hepsini yenersiniz. Tek uzunluktaki bir döngü böyle bölünemez, bu yüzden her zaman bir argüman açıkta kalır. İki semantiğin çoğu zaman aynı sonucu vermesinin nedeni de budur. Çatışmaların çoğu iki yönlüdür ve uzunluğu iki olan döngüler oluşturur. Bir tercih de çoğu zaman iki yönlü bir saldırıyı tek yönlü bir başarılı saldırıya çevirerek o döngüyü ortadan kaldırır. Kurala saldırılar ve tek yönlü karşıtlıklar ise yine de tek uzunlukta döngüler oluşturabilir.",
+      ),
+      exercises: [
+        {
+          id: "cycles-1",
+          kind: "predict",
+          task: tx(
+            "The bird and the penguin without preferences: the two arguments about {flies} defeat each other, a cycle of length two. How many stable extensions does this theory have?",
+            "Tercihsiz kuş ve penguen örneği: {flies} hakkındaki iki argüman birbirini yeniyor. Bu, uzunluğu iki olan bir döngüdür. Bu kuramın kaç kararlı kapsamı var?",
+          ),
+          settings: { semantics: "stable" },
+          given: "[<premise>: {bird}]\n[<premise>: {penguin}]\n[<defeasible> r1: {bird} => {flies}]\n[<defeasible> r2: {penguin} => -{flies}]",
+          choices: COUNT_CHOICES,
+          hint: tx("Can you pick one side of the conflict so that it defeats the other?", "Çatışmanın bir tarafını, diğer tarafı yenecek şekilde seçebilir misiniz?"),
+          answer: (ctx) => countAnswer(ctx.r),
+          explain(ctx) {
+            return tx(
+              `The engine finds ${familyText(ctx.r, "en")}. Each stable extension takes one side of the even cycle and defeats the other, so nothing outside is left undefeated. Preferred semantics gives exactly the same two extensions.`,
+              `Motor şu kapsamları buluyor: ${familyText(ctx.r, "tr")}. Her kararlı kapsam çift döngünün bir tarafını alıyor ve diğerini yeniyor, bu yüzden dışarıda yenilmemiş bir argüman kalmıyor. Tercih edilen semantik de tam olarak aynı iki kapsamı verir.`,
+            );
+          },
+        },
+        {
+          id: "cycles-2",
+          kind: "predict",
+          task: tx(
+            "Three premises in a one-way circle: “a” attacks “b”, “b” attacks “c”, and “c” attacks “a”. What does preferred semantics give?",
+            "Tek yönlü bir daire oluşturan üç öncül: “a” “b”ye, “b” “c”ye, “c” de “a”ya saldırıyor. Tercih edilen semantik ne verir?",
+          ),
+          settings: { semantics: "preferred" },
+          given: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]",
+          choices: [
+            { value: "empty", label: tx("one extension, the empty set", "tek kapsam, boş küme") },
+            { value: "singletons", label: tx("three extensions: {a}, {b} and {c}", "üç kapsam: {a}, {b} ve {c}") },
+            { value: "none", label: tx("no extension", "hiç kapsam yok") },
+          ],
+          hint: tx("Take {a} alone. Something defeats “a”. Can {a} defend it?", "Yalnızca {a} kümesini alın. “a” argümanını bir şey yeniyor. {a} onu savunabilir mi?"),
+          answer: (ctx) => (!ctx.r.extensions.length ? "none" : ctx.r.extensions.length === 1 && family(ctx.r)[0] === "{}" ? "empty" : "singletons"),
+          explain(ctx) {
+            return tx(
+              `The engine finds ${familyText(ctx.r, "en")}. No argument can be accepted on its own: “c” defeats “a”, and only “b” could defeat “c”, but “a” and “b” cannot be accepted together because “a” defeats “b”. The same holds for “b” and for “c”. So the only set that is conflict-free and defends its members is the empty set, and that is the preferred extension.`,
+              `Motor şunu buluyor: ${familyText(ctx.r, "tr")}. Hiçbir argüman tek başına kabul edilemez: “c”, “a”yı yeniyor ve “c”yi ancak “b” yenebilir, ama “a” ile “b” birlikte kabul edilemez, çünkü “a” “b”yi yeniyor. Aynısı “b” ve “c” için de geçerli. Bu yüzden çatışmasız olan ve üyelerini savunan tek küme boş kümedir ve tercih edilen kapsam odur.`,
+            );
+          },
+        },
         {
           id: "semantics-3",
           kind: "build",
@@ -922,13 +998,20 @@
           wrong: ["[<premise>: a]\n[<premise>: b]\n[<contrary>: a ^ b]\n[<contrary>: b ^ a]", "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]"],
           check(ctx) {
             const three = ["a", "b", "c"];
-            const prem = (ctx.decls.facts || []).filter((f) => f.kind === "premise").map((f) => f.literal);
+            const facts = ctx.decls.facts || [];
+            const prem = facts.filter((f) => f.kind === "premise").map((f) => f.literal);
             if (!hasAll(prem, three))
               return { ok: false, msg: tx("Use the three premises “a”, “b” and “c”.", "“a”, “b” ve “c” adındaki üç öncülü kullanın.") };
-            const edges = (ctx.decls.contraries || []).filter((x) => !x.symmetric && three.includes(x.source) && three.includes(x.target));
-            const has = (x, y) => edges.some((e) => e.source === x && e.target === y);
-            const cycle = (has("a", "b") && has("b", "c") && has("c", "a")) || (has("a", "c") && has("c", "b") && has("b", "a"));
-            if (!cycle)
+            const extra = facts.length !== 3 || (ctx.decls.rules || []).length || (ctx.decls.rulePrefs || []).length || (ctx.decls.premisePrefs || []).length || (ctx.decls.contraries || []).length !== 3;
+            if (extra)
+              return {
+                ok: false,
+                msg: tx(
+                  "Write only the three premises and the three one-way conflicts of the circle, so that the result depends on the cycle alone.",
+                  "Sonuç yalnızca döngüye bağlı olsun diye yalnızca üç öncülü ve dairenin üç tek yönlü çatışmasını yazın.",
+                ),
+              };
+            if (!cycleOf(ctx, three))
               return {
                 ok: false,
                 msg: tx(
@@ -945,13 +1028,133 @@
                   "Üç başarılı saldırı tek uzunlukta bir döngü oluşturuyor. Kararlı bir kapsam hem çatışmasız olmalı hem de dışında kalan her argümana saldırmalıdır. Tek uzunluktaki bir döngüde hiçbir çatışmasız küme bunu yapamaz, bu yüzden kararlı semantiğin kapsamı yok. (Bütün argümanlardan oluşan küme dışındaki her şeye saldırır, çünkü dışında hiçbir şey kalmaz, ama çatışmasız değildir.)",
                 ),
               };
+            return { ok: false, msg: tx(`Stable semantics gives ${familyText(ctx.r, "en")}.`, `Kararlı semantik şunu veriyor: ${familyText(ctx.r, "tr")}.`) };
+          },
+        },
+        {
+          id: "cycles-3",
+          kind: "build",
+          task: tx(
+            "Now make the cycle even. Using the four premises below, add one-way conflicts that run around a circle through all four, so that stable semantics has two extensions.",
+            "Şimdi döngüyü çift yapın. Aşağıdaki dört öncülü kullanarak dördünün hepsinden geçen ve bir daire oluşturan tek yönlü çatışmalar ekleyin. Böylece kararlı semantiğin iki kapsamı olsun.",
+          ),
+          settings: { semantics: "stable" },
+          given: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<premise>: d]",
+          hint: tx("Four contraries: “a” attacks “b”, “b” attacks “c”, “c” attacks “d”, and “d” attacks “a”.", "Dört karşıtlık: “a” “b”ye, “b” “c”ye, “c” “d”ye, “d” de “a”ya saldırsın."),
+          solution: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<premise>: d]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ d]\n[<contrary>: d ^ a]",
+          wrong: [
+            "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<premise>: d]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]",
+            "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<premise>: d]\n[<contradictory>: a ^ b]\n[<contradictory>: c ^ d]",
+          ],
+          alternatives: [{ src: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<premise>: d]\n[<contrary>: a ^ c]\n[<contrary>: c ^ b]\n[<contrary>: b ^ d]\n[<contrary>: d ^ a]" }],
+          check(ctx) {
+            if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
+            const four = ["a", "b", "c", "d"];
+            const add = added(ctx);
+            const conflicts = add.contraries;
+            if (add.count !== conflicts.length || conflicts.length !== 4 || conflicts.some((x) => x.symmetric))
+              return {
+                ok: false,
+                msg: tx(
+                  `Add exactly four one-way conflicts and nothing else. You added ${add.count} declaration(s), ${conflicts.filter((x) => !x.symmetric).length} of them one-way conflicts.`,
+                  `Tam olarak dört tek yönlü çatışma ekleyin, başka bir şey eklemeyin. Siz ${add.count} bildirim eklediniz ve bunların ${conflicts.filter((x) => !x.symmetric).length} tanesi tek yönlü çatışma.`,
+                ),
+              };
+            if (!cycleOf(ctx, four))
+              return {
+                ok: false,
+                msg: tx(
+                  "The four one-way conflicts should form a single circle through all four premises.",
+                  "Dört tek yönlü çatışma, dört öncülün hepsinden geçen tek bir daire oluşturmalı.",
+                ),
+              };
+            const n = ctx.r.extensions.length;
+            if (n !== 2) return { ok: false, msg: tx(`Stable semantics gives ${familyText(ctx.r, "en")}.`, `Kararlı semantik şunu veriyor: ${familyText(ctx.r, "tr")}.`) };
             return {
-              ok: false,
+              ok: true,
               msg: tx(
-                `There is a cycle, but stable semantics still has ${n} extension(s). Check that the attacks in the cycle succeed and that nothing else breaks it.`,
-                `Döngü var, ama kararlı semantiğin hâlâ ${n} kapsamı var. Döngüdeki saldırıların başarılı olduğunu ve döngüyü bozan başka bir şey olmadığını kontrol edin.`,
+                `Stable semantics now gives ${familyText(ctx.r, "en")}. In a cycle of four, taking every other argument defeats the remaining two, and there are two ways to do that.`,
+                `Kararlı semantik şimdi şunları veriyor: ${familyText(ctx.r, "tr")}. Dört argümanlı bir döngüde argümanları birer atlayarak seçmek geri kalan ikisini yener ve bunu yapmanın iki yolu vardır.`,
               ),
             };
+          },
+        },
+        {
+          id: "cycles-4",
+          kind: "build",
+          task: tx(
+            "The odd cycle again, with no stable extension. Without deleting anything, add one new premise and one one-way conflict from it into the cycle, so that stable semantics has an extension again.",
+            "Yine kararlı kapsamı olmayan tek döngü. Hiçbir şeyi silmeden yeni bir öncül ve bu öncülden döngüye giden tek yönlü bir çatışma ekleyin. Böylece kararlı semantiğin yeniden bir kapsamı olsun.",
+          ),
+          settings: { semantics: "stable" },
+          given: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]",
+          hint: tx("A new, undefeated argument that defeats one member of the cycle breaks it open.", "Döngünün bir üyesini yenen, yenilmemiş yeni bir argüman döngüyü kırar."),
+          solution: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]\n[<premise>: d]\n[<contrary>: d ^ a]",
+          wrong: [
+            "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]\n[<premise>: d]",
+            "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ c]\n[<contrary>: c ^ a]\n[<premise>: d]\n[<contrary>: a ^ d]",
+          ],
+          check(ctx) {
+            if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
+            const three = ["a", "b", "c"];
+            const add = added(ctx);
+            const fresh = add.facts.filter((f) => f.kind === "premise" && !three.includes(f.literal));
+            if (add.count !== 2 || fresh.length !== 1 || add.contraries.length !== 1)
+              return {
+                ok: false,
+                msg: tx(
+                  "Add exactly two declarations: one new premise and one one-way conflict from it into the cycle.",
+                  "Tam olarak iki bildirim ekleyin: yeni bir öncül ve bu öncülden döngüye giden tek yönlü bir çatışma.",
+                ),
+              };
+            const nu = fresh[0].literal,
+              link = add.contraries[0];
+            if (link.symmetric || link.source !== nu || !three.includes(link.target))
+              return { ok: false, msg: tx(`The conflict should run one way, from ${q(nu)} to one of “a”, “b” or “c”.`, `Çatışma tek yönlü olmalı ve ${q(nu)} öncülünden “a”, “b” ya da “c”den birine gitmeli.`) };
+            const r = ctx.r;
+            const mine = r.arguments.findIndex((a) => a.kind === "premise" && a.conclusion === nu);
+            const hit = r.attacks.find((a) => a.succeeds && a.attacker === mine && three.includes(r.arguments[a.target].conclusion));
+            if (!hit || !r.extensions.length)
+              return { ok: false, msg: tx(`Stable semantics still gives ${familyText(r, "en")}.`, `Kararlı semantik hâlâ şunu veriyor: ${familyText(r, "tr")}.`) };
+            const undefeated = !r.attackers[mine].length;
+            let pref = null;
+            try {
+              pref = AF.evaluate(ctx.source, Object.assign({}, SETTINGS, { semantics: "preferred" }));
+            } catch (e) {}
+            const same = pref && sameFamily(r, pref);
+            return {
+              ok: true,
+              msg: join([
+                tx(`Stable semantics now gives ${familyText(r, "en")}.`, `Kararlı semantik şimdi şunu veriyor: ${familyText(r, "tr")}.`),
+                undefeated
+                  ? tx(`Nothing defeats ${q(nu)}, and it defeats ${q(r.arguments[hit.target].conclusion)}, so the cycle is broken from outside and the remaining arguments can be split.`, `${q(nu)} öncülünü hiçbir şey yenmiyor ve o ${q(r.arguments[hit.target].conclusion)} öncülünü yeniyor. Böylece döngü dışarıdan kırılıyor ve geri kalan argümanlar bölünebiliyor.`)
+                  : tx("", ""),
+                same
+                  ? tx("Preferred semantics gives the same result.", "Tercih edilen semantik de aynı sonucu veriyor.")
+                  : pref
+                    ? tx(`Preferred semantics gives ${familyText(pref, "en")}.`, `Tercih edilen semantik ise şunu veriyor: ${familyText(pref, "tr")}.`)
+                    : tx("", ""),
+              ]),
+            };
+          },
+        },
+        {
+          id: "cycles-5",
+          kind: "predict",
+          task: tx(
+            "“a” and “b” attack each other, “c” attacks “a”, and “c” also attacks itself (a cycle of length one). Preferred semantics gives one extension, {b}. How many stable extensions are there?",
+            "“a” ile “b” birbirine saldırıyor, “c” “a”ya saldırıyor ve “c” kendisine de saldırıyor (uzunluğu bir olan bir döngü). Tercih edilen semantik tek bir kapsam veriyor: {b}. Kaç kararlı kapsam var?",
+          ),
+          settings: { semantics: "stable" },
+          given: "[<premise>: a]\n[<premise>: b]\n[<premise>: c]\n[<contrary>: a ^ b]\n[<contrary>: b ^ a]\n[<contrary>: c ^ a]\n[<contrary>: c ^ c]",
+          choices: COUNT_CHOICES,
+          hint: tx("A stable extension must defeat “c” unless it contains it. What defeats “c”?", "Kararlı bir kapsam, “c”yi içermiyorsa onu yenmelidir. “c”yi ne yeniyor?"),
+          answer: (ctx) => countAnswer(ctx.r),
+          explain(ctx) {
+            return tx(
+              `The engine finds ${familyText(ctx.r, "en")}. Only “c” itself defeats “c”, so a conflict-free set can neither contain “c” nor defeat it. {b} is the preferred extension, but it leaves “c” outside without defeating it, so it is not stable.`,
+              `Motor şunu buluyor: ${familyText(ctx.r, "tr")}. “c”yi yalnızca kendisi yeniyor. Bu yüzden çatışmasız bir küme “c”yi ne içerebilir ne de yenebilir. {b} tercih edilen kapsamdır, ama “c”yi yenmeden dışarıda bıraktığı için kararlı değildir.`,
+            );
           },
         },
       ],
