@@ -420,7 +420,7 @@
       w: Math.max(W, 200) + 2 * pad,
       h: Math.max(H, 120) + 2 * pad,
     };
-    const full = {
+    let full = {
       ...view,
     };
     const apply = () => svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
@@ -496,6 +496,19 @@
       tools.append(b);
     }
     container.append(tools, svg);
+    try {
+      const bb = world.getBBox();
+      if (bb && bb.width > 0 && bb.height > 0) {
+        const m = 14;
+        const x0 = Math.min(full.x, bb.x - m),
+          y0 = Math.min(full.y, bb.y - m);
+        const x1 = Math.max(full.x + full.w, bb.x + bb.width + m),
+          y1 = Math.max(full.y + full.h, bb.y + bb.height + m);
+        full = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+        view = { ...full };
+        apply();
+      }
+    } catch (e) {}
   }
   root.ArgGraph = {
     render: render,

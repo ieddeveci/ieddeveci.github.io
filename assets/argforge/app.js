@@ -81,11 +81,11 @@
     "The {s} semantics has no extension for this theory, so no claim has a status.":
       "{s} semantiğin bu kuram için kapsamı yok, bu yüzden hiçbir iddianın durumu yok.",
     "Restore previous theory": "Önceki kuramı geri getir",
-    "Background evaluation is not available here, so this large theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?":
-      "Arka planda değerlendirme burada kullanılamıyor. Bu büyük kuram sayfanın kendisinde değerlendirilecek ve bu sırada sayfa yanıt vermeyebilir. Yine de değerlendirilsin mi?",
+    "Background evaluation is not available in this browser, so this theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?":
+      "Bu tarayıcıda arka planda değerlendirme kullanılamıyor. Bu kuram sayfanın kendisinde değerlendirilecek ve bu sırada sayfa yanıt vermeyebilir. Yine de değerlendirilsin mi?",
     "Evaluation not started.": "Değerlendirme başlatılmadı.",
-    "Background evaluation is not available in this browser, for example when the page is opened as a local file. Evaluations run on the page itself and cannot be cancelled, so a very large theory can make the page unresponsive.":
-      "Arka planda değerlendirme bu tarayıcıda kullanılamıyor, örneğin sayfa yerel bir dosya olarak açıldığında. Değerlendirmeler sayfanın kendisinde yapılır ve iptal edilemez. Bu yüzden çok büyük bir kuram sayfanın yanıt vermemesine yol açabilir.",
+    "Background evaluation is not available in this browser. Evaluations run on the page itself and cannot be cancelled, so the page asks before each one.":
+      "Arka planda değerlendirme bu tarayıcıda kullanılamıyor. Değerlendirmeler sayfanın kendisinde yapılır ve iptal edilemez, bu yüzden sayfa her birinden önce sorar.",
     "Claims and rules is a summary: arguments for the same claim share one box, and each attack is drawn where it lands. An attack on a premise or step also defeats every argument built on it, even though no separate arrow is drawn to those arguments. “Every argument” shows all of them.":
       "İddialar ve kurallar bir özettir: aynı iddia için kurulan argümanlar tek kutuyu paylaşır ve her saldırı, hedef aldığı yere çizilir. Bir öncüle ya da adıma yapılan saldırı, onun üzerine kurulan her argümanı da yener, ama bu argümanlara ayrı bir ok çizilmez. “Her argüman” görünümü hepsini gösterir.",
     "The only {s} extension contains an argument for it: ": "Tek {s} kapsam onun için bir argüman içeriyor: ",
@@ -457,35 +457,59 @@
     const core = document.querySelector('script[src*="argforge-core.js"]');
     return core ? core.src.replace(/argforge-core\.js.*$/, "engine-worker.js") : "engine-worker.js";
   }
+  let triedInline = false;
+  function inlineWorker() {
+    if (triedInline || !window.ARGFORGE_WORKER_SOURCE || typeof Blob === "undefined" || typeof URL === "undefined") return null;
+    triedInline = true;
+    try {
+      return new Worker(URL.createObjectURL(new Blob([window.ARGFORGE_WORKER_SOURCE], { type: "text/javascript" })));
+    } catch (e) {
+      return null;
+    }
+  }
+  function attach(w) {
+    w.onmessage = onWorker;
+    w.onerror = (ev) => {
+      if (ev.preventDefault) ev.preventDefault();
+      worker = null;
+      if (!workerReady) {
+        const next = inlineWorker();
+        if (next) {
+          worker = attach(next);
+          if (pending) worker.postMessage({ id: pending.id, source: pending.source, options: pending.options });
+          return;
+        }
+        workerBroken = true;
+        if (pending) runHere(pending);
+        return;
+      }
+      workerReady = false;
+      if (pending) {
+        pending = null;
+        hideRunning();
+        failed({
+          message: T(
+            "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try grounded semantics or a smaller theory.",
+          ),
+        });
+      }
+    };
+    return w;
+  }
   function engine() {
     if (workerBroken || typeof Worker === "undefined") return null;
     if (!worker) {
+      let w = null;
       try {
-        worker = new Worker(workerUrl());
-        worker.onmessage = onWorker;
-        worker.onerror = (ev) => {
-          if (ev.preventDefault) ev.preventDefault();
-          worker = null;
-          if (!workerReady) {
-            workerBroken = true;
-            if (pending) runHere(pending);
-            return;
-          }
-          workerReady = false;
-          if (pending) {
-            pending = null;
-            hideRunning();
-            failed({
-              message: T(
-                "The background evaluation stopped unexpectedly, most likely because the browser ran out of memory: this theory has too many extensions for the chosen semantics. Try grounded semantics or a smaller theory.",
-              ),
-            });
-          }
-        };
+        w = new Worker(workerUrl());
       } catch (e) {
+        w = inlineWorker();
+      }
+      if (!w) {
         workerBroken = true;
         return null;
       }
+      worker = attach(w);
     }
     return worker;
   }
@@ -583,8 +607,7 @@
   }
   function runHere(request) {
     announceLocal();
-    const size = (request.source.match(/\[/g) || []).length;
-    if (size > 60 && !window.confirm(T("Background evaluation is not available here, so this large theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?"))) {
+    if (!window.confirm(T("Background evaluation is not available in this browser, so this theory would be evaluated on the page itself, which may make the page unresponsive until it finishes. Evaluate it anyway?"))) {
       pending = null;
       hideRunning();
       status(T("Evaluation not started."));

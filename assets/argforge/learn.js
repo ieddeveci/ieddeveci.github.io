@@ -234,6 +234,16 @@
     return (ctx.decls.rules || []).filter((x) => !old.has(x.name));
   };
   const hasAll = (xs, ys) => ys.every((y) => xs.includes(y));
+  const exactly = (xs, ys) => xs.length === ys.length && hasAll(xs, ys) && hasAll(ys, xs);
+  function extraConditions(ctx, consequent, required) {
+    const found = (ctx.decls.rules || []).find((x) => x.consequent === consequent && hasAll(x.antecedents, required) && x.antecedents.length > required.length);
+    if (!found) return null;
+    const extra = found.antecedents.filter((a) => !required.includes(a));
+    return tx(
+      `The rule ${found.name} has a condition the text does not mention: ${extra.map(q).join(", ")}. Use exactly ${required.map(q).join(" and ")} as its condition${required.length > 1 ? "s" : ""}.`,
+      `${found.name} kuralında metnin söylemediği bir koşul var: ${extra.map(q).join(", ")}. Koşul olarak yalnızca ${required.map(q).join(" ve ")} kullanın.`,
+    );
+  }
   const argsWithRule = (r, name) => r.arguments.map((a, i) => i).filter((i) => r.arguments[i].rule === name);
   const childConclusions = (r, i) => r.arguments[i].children.map((c) => r.arguments[c].conclusion);
   const label = (r, i) => r.arguments[i].grounded;
@@ -665,8 +675,10 @@
                   `Bu, -r1 ifadesini doğrudan bildiriyor. Görev, ${q(pg)} geçerliyken uygulanan ve -r1 sonucuna varan bir kural yazmak.`,
                 ),
               };
-            const cutters = newRules(ctx).filter((x) => x.consequent === "-r1" && x.antecedents.includes(pg));
+            const cutters = newRules(ctx).filter((x) => x.consequent === "-r1" && exactly(x.antecedents, [pg]));
             if (!cutters.length) {
+              const extra = extraConditions(ctx, "-r1", [pg]);
+              if (extra) return { ok: false, msg: extra };
               if (ctx.r.attacks.some((a) => a.kind === "rebut"))
                 return {
                   ok: false,
@@ -938,8 +950,8 @@
       id: "cycles",
       title: tx("Odd and even cycles", "Tek ve çift döngüler"),
       intro: tx(
-        "Every stable extension is also a preferred extension, but a stable extension must do more: it must defeat every argument outside it. The two semantics therefore differ only when a preferred extension leaves an argument outside that it does not defeat. In a finite framework that can only happen when the successful attacks form a cycle of odd length. An even cycle on its own can be split: take every other argument and you defeat all the rest. An odd cycle cannot be split this way, so one argument is always left over. This is also why the two usually agree: most conflicts are two-way, which makes cycles of length two, and a preference often turns a two-way attack into a one-way defeat, which removes that cycle. Undercuts and one-way contraries, however, can still form odd cycles.",
-        "Her kararlı kapsam aynı zamanda tercih edilen bir kapsamdır, ama kararlı kapsamdan daha fazlası beklenir: dışında kalan her argümanı yenmelidir. Bu yüzden iki semantik ancak tercih edilen bir kapsam, dışında bıraktığı bir argümanı yenmediğinde birbirinden ayrılır. Sonlu bir çerçevede bu yalnızca başarılı saldırılar tek uzunlukta bir döngü oluşturduğunda olabilir. Tek başına duran çift uzunluktaki bir döngü ikiye bölünebilir: argümanları birer atlayarak seçerseniz geri kalanların hepsini yenersiniz. Tek uzunluktaki bir döngü böyle bölünemez, bu yüzden her zaman bir argüman açıkta kalır. İki semantiğin çoğu zaman aynı sonucu vermesinin nedeni de budur. Çatışmaların çoğu iki yönlüdür ve uzunluğu iki olan döngüler oluşturur. Bir tercih de çoğu zaman iki yönlü bir saldırıyı tek yönlü bir başarılı saldırıya çevirerek o döngüyü ortadan kaldırır. Kurala saldırılar ve tek yönlü karşıtlıklar ise yine de tek uzunlukta döngüler oluşturabilir.",
+        "Every stable extension is also a preferred extension, but a stable extension must do more: it must defeat every argument outside it. The two semantics therefore differ only when a preferred extension leaves an argument outside that it does not defeat. In a finite framework that can only happen if the successful attacks contain a cycle of odd length. The reverse does not hold: an odd cycle does not by itself rule out stable extensions, because an argument outside the cycle may break it, as one of the exercises below shows. For an isolated cycle, with nothing else attacking or attacked, the picture is simple. An even cycle can be split: take every other argument and you defeat all the rest. An odd cycle cannot be split this way, so one argument is always left over and there is no stable extension.",
+        "Her kararlı kapsam aynı zamanda tercih edilen bir kapsamdır, ama kararlı kapsamdan daha fazlası beklenir: dışında kalan her argümanı yenmelidir. Bu yüzden iki semantik ancak tercih edilen bir kapsam, dışında bıraktığı bir argümanı yenmediğinde birbirinden ayrılır. Sonlu bir çerçevede bu yalnızca başarılı saldırılar tek uzunlukta bir döngü içeriyorsa olabilir. Tersi doğru değildir: tek uzunlukta bir döngü, kararlı kapsamların olmadığını tek başına göstermez. Çünkü döngünün dışındaki bir argüman döngüyü kırabilir. Aşağıdaki alıştırmalardan biri bunu gösteriyor. Başka hiçbir şeye saldırmayan ve saldırıya uğramayan yalıtılmış bir döngüde durum basittir. Çift uzunluktaki bir döngü ikiye bölünebilir: argümanları birer atlayarak seçerseniz geri kalanların hepsini yenersiniz. Tek uzunluktaki bir döngü böyle bölünemez, bu yüzden her zaman bir argüman açıkta kalır ve kararlı kapsam olmaz.",
       ),
       exercises: [
         {
@@ -1024,8 +1036,8 @@
               return {
                 ok: true,
                 msg: tx(
-                  "The three successful attacks form a cycle of odd length. A stable extension must be conflict-free and must attack every argument outside it. In an odd cycle no conflict-free set can do that, so stable semantics has no extension. (The set of all arguments does attack everything outside it, trivially, but it is not conflict-free.)",
-                  "Üç başarılı saldırı tek uzunlukta bir döngü oluşturuyor. Kararlı bir kapsam hem çatışmasız olmalı hem de dışında kalan her argümana saldırmalıdır. Tek uzunluktaki bir döngüde hiçbir çatışmasız küme bunu yapamaz, bu yüzden kararlı semantiğin kapsamı yok. (Bütün argümanlardan oluşan küme dışındaki her şeye saldırır, çünkü dışında hiçbir şey kalmaz, ama çatışmasız değildir.)",
+                  "The three successful attacks form an isolated cycle of odd length: nothing else attacks these arguments or is attacked by them. A stable extension must be conflict-free and must attack every argument outside it. In an isolated odd cycle no conflict-free set can do that, so stable semantics has no extension. (The set of all arguments does attack everything outside it, trivially, but it is not conflict-free.)",
+                  "Üç başarılı saldırı tek uzunlukta, yalıtılmış bir döngü oluşturuyor: bu argümanlara başka hiçbir şey saldırmıyor, onlar da başka hiçbir şeye saldırmıyor. Kararlı bir kapsam hem çatışmasız olmalı hem de dışında kalan her argümana saldırmalıdır. Yalıtılmış tek bir döngüde hiçbir çatışmasız küme bunu yapamaz, bu yüzden kararlı semantiğin kapsamı yok. (Bütün argümanlardan oluşan küme dışındaki her şeye saldırır, çünkü dışında hiçbir şey kalmaz, ama çatışmasız değildir.)",
                 ),
               };
             return { ok: false, msg: tx(`Stable semantics gives ${familyText(ctx.r, "en")}.`, `Kararlı semantik şunu veriyor: ${familyText(ctx.r, "tr")}.`) };
@@ -1495,8 +1507,10 @@
               rn = k("rexpert", ctx.lang);
             if ((ctx.decls.facts || []).some((f) => f.literal === "-" + rn))
               return { ok: false, msg: tx(`That declares -${rn} directly. Write a rule that derives it from ${q(pd)}.`, `Bu, -${rn} ifadesini doğrudan bildiriyor. Onu ${q(pd)} ifadesinden türeten bir kural yazın.`) };
-            const rules = newRules(ctx).filter((x) => x.consequent === "-" + rn && x.antecedents.includes(pd));
+            const rules = newRules(ctx).filter((x) => x.consequent === "-" + rn && exactly(x.antecedents, [pd]));
             if (!rules.length) {
+              const extra = extraConditions(ctx, "-" + rn, [pd]);
+              if (extra) return { ok: false, msg: extra };
               const rebut = ctx.r.attacks.find((a) => a.kind === "rebut");
               return {
                 ok: false,
@@ -1540,7 +1554,8 @@
             if (!keptGiven(ctx)) return { ok: false, msg: missingGiven };
             const c = w("safe", ctx.lang);
             const need = [w("expM", ctx.lang), w("saysM", ctx.lang)];
-            const rules = newRules(ctx).filter((x) => x.kind === "defeasible" && x.consequent === neg(c) && hasAll(x.antecedents, need));
+            const rules = newRules(ctx).filter((x) => x.kind === "defeasible" && x.consequent === neg(c) && exactly(x.antecedents, need));
+            if (!rules.length && extraConditions(ctx, neg(c), need)) return { ok: false, msg: extraConditions(ctx, neg(c), need) };
             if (!rules.length)
               return {
                 ok: false,
@@ -1632,8 +1647,10 @@
             const ruleOf = (i) => (ctx.decls.rules || []).find((x) => x.name === r.arguments[i].rule);
             const general = r.arguments.map((a, i) => i).filter((i) => {
               const rule = ruleOf(i);
-              return rule && rule.kind === "defeasible" && rule.consequent === c && rule.antecedents.includes(ps);
+              return rule && rule.kind === "defeasible" && rule.consequent === c && exactly(rule.antecedents, [ps]);
             });
+            const extraGeneral = extraConditions(ctx, c, [ps]);
+            if (!general.length && extraGeneral) return { ok: false, msg: extraGeneral };
             if (!general.length)
               return {
                 ok: false,
@@ -1645,8 +1662,10 @@
             const generalRules = general.map((i) => r.arguments[i].rule);
             const exception = r.arguments.map((a, i) => i).filter((i) => {
               const rule = ruleOf(i);
-              return rule && rule.antecedents.includes(ch) && (rule.consequent === neg(c) || generalRules.some((g) => rule.consequent === "-" + g));
+              return rule && exactly(rule.antecedents, [ch]) && (rule.consequent === neg(c) || generalRules.some((g) => rule.consequent === "-" + g));
             });
+            const extraException = extraConditions(ctx, neg(c), [ch]) || generalRules.map((g) => extraConditions(ctx, "-" + g, [ch])).find(Boolean);
+            if (!exception.length && extraException) return { ok: false, msg: extraException };
             if (!exception.length)
               return {
                 ok: false,
@@ -1708,14 +1727,18 @@
             if (problems.length) return { ok: false, msg: join(problems) };
             const vehicleArgs = r.arguments.map((a, i) => i).filter((i) => {
               const rule = ruleOf(i);
-              return rule && rule.kind === "strict" && rule.consequent === v && rule.antecedents.includes(am);
+              return rule && rule.kind === "strict" && rule.consequent === v && exactly(rule.antecedents, [am]);
             });
+            const extraVehicle = extraConditions(ctx, v, [am]);
+            if (!vehicleArgs.length && extraVehicle) return { ok: false, msg: extraVehicle };
             if (!vehicleArgs.length)
               return { ok: false, msg: tx(`“Every ambulance is a vehicle” has no exceptions: write it as a strict rule from ${q(am)} to ${q(v)}.`, `“Her ambulans bir araçtır” istisnasızdır: bunu ${q(am)} ifadesinden ${q(v)} ifadesine giden katı bir kural olarak yazın.`) };
             const ban = r.arguments.map((a, i) => i).filter((i) => {
               const rule = ruleOf(i);
-              return rule && rule.kind === "defeasible" && rule.consequent === neg(al) && r.arguments[i].children.some((ch) => vehicleArgs.includes(ch));
+              return rule && rule.kind === "defeasible" && rule.consequent === neg(al) && exactly(rule.antecedents, [v]) && r.arguments[i].children.some((ch) => vehicleArgs.includes(ch));
             });
+            const extraBan = extraConditions(ctx, neg(al), [v]);
+            if (!ban.length && extraBan) return { ok: false, msg: extraBan };
             if (!ban.length)
               return {
                 ok: false,
@@ -1726,8 +1749,10 @@
               };
             const exception = r.arguments.map((a, i) => i).filter((i) => {
               const rule = ruleOf(i);
-              return rule && rule.kind === "defeasible" && rule.consequent === al && hasAll(rule.antecedents, [am, du]);
+              return rule && rule.kind === "defeasible" && rule.consequent === al && exactly(rule.antecedents, [am, du]);
             });
+            const extraExc = extraConditions(ctx, al, [am, du]);
+            if (!exception.length && extraExc) return { ok: false, msg: extraExc };
             if (!exception.length)
               return {
                 ok: false,
@@ -1826,6 +1851,7 @@
           id: "labellings-3",
           kind: "label",
           goal: "complete-in",
+          settings: { semantics: "complete" },
           target: "flies",
           task: tx(
             "The same theory has other complete labellings. Find one in which the argument for {flies} is IN.",
